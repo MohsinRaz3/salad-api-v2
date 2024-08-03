@@ -1,0 +1,24 @@
+from typing import Any, Tuple
+from pydantic import BaseModel, validator, Field
+
+class FileWrapper(BaseModel):
+    file: Tuple[str, bytes, str] = Field(..., description="A tuple containing filename, file content, and MIME type")
+
+    @validator('file')
+    def check_file_tuple(cls, value):
+        if not isinstance(value, tuple) or len(value) != 3:
+            raise ValueError('file must be a tuple with exactly three elements')
+        
+        filename, file_content, mime_type = value
+        
+        if not isinstance(filename, str):
+            raise ValueError('filename must be a string')
+        
+        if not isinstance(file_content, bytes):
+            raise ValueError('file_content must be bytes')
+        
+        if not isinstance(mime_type, str):
+            raise ValueError('mime_type must be a string')
+        
+        return value
+
