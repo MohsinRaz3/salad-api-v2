@@ -47,10 +47,9 @@ app.add_middleware(
 )
 
 async def webhook_ap(output_data):
-     ap_webhook_url = "https://cloud.activepieces.com/api/v1/webhooks/7E5rrdz8vuCua26l97zuK/sync"
+     ap_webhook_url = "https://cloud.activepieces.com/api/v1/webhooks/7E5rrdz8vuCua26l97zuK"
      res = requests.post(ap_webhook_url, data=json.dumps(output_data),headers={'Content-Type': 'application/json'})
-     result = await res.json()
-     return result
+     return
  
 async def get_job(job_id):
     organisation_name = os.getenv('ORGANIZATION_NAME')
@@ -145,8 +144,7 @@ async def transcribe_voice(file: UploadFile = File(...)):
             get_transcription = await get_job(job_id)
             if get_transcription:                
                 output_data = {"transcript" : get_transcription['output']['text']}
-                webhook_trigger = await webhook_ap(output_data)
-                print("AP hook trigger",webhook_trigger)
+                await webhook_ap(output_data)
                 return output_data     
             
     except requests.exceptions.RequestException as e:
