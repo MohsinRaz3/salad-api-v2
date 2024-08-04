@@ -17,6 +17,9 @@ app = FastAPI(
 origins = [
     "https://rocket-tools.netlify.app/",
     "https://rocket-tools.netlify.app",
+    "https://salad-api.vercel.app/",
+    "https://salad-api.vercel.app/transcribe",
+    "https://salad-api.vercel.app",
     "http://localhost:3000/",
     "http://localhost:3000",
     "http://127.0.0.1:3000",
@@ -63,7 +66,7 @@ async def get_job(job_id):
             break
 
 
-async def upload_b2_storage(file):
+async def upload_b2_storage(file: UploadFile):
     APPLICATION_KEY_ID = os.getenv('APPLICATION_KEY_ID')
     APPLICATION_KEY = os.getenv('APPLICATION_KEY')
     try:
@@ -74,9 +77,11 @@ async def upload_b2_storage(file):
         bucket_name = os.getenv('BUCKET_NAME')
         bucket = b2_api.get_bucket_by_name(bucket_name)
 
+        # Read file content into memory
         content = await file.read()
         file_name = file.filename
 
+        # Upload file content to B2 storage
         bucket.upload_bytes(
             content,
             file_name,
@@ -97,6 +102,7 @@ async def home_notes():
 @app.post("/transcribe")
 async def transcribe_voice(file: UploadFile = File(...)):
     try:
+        # Upload file to B2 storage
         b2_file_url = await upload_b2_storage(file)
 
         organization_name =  os.getenv('ORGANIZATION_NAME')
