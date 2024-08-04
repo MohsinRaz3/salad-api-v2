@@ -15,6 +15,9 @@ app = FastAPI(
 )
 
 origins = [
+    "https://salad-api-v2.onrender.com",
+    "https://salad-api-v2.onrender.com/",
+    "https://salad-api-v2.onrender.com/transcribe"
     "https://rocket-tools.netlify.app/",
     "https://rocket-tools.netlify.app",
     "https://salad-api.vercel.app/",
@@ -44,9 +47,11 @@ app.add_middleware(
 )
 
 async def webhook_ap(output_data):
-     ap_webhook_url = "https://cloud.activepieces.com/api/v1/webhooks/7E5rrdz8vuCua26l97zuK"
+     ap_webhook_url = "https://cloud.activepieces.com/api/v1/webhooks/7E5rrdz8vuCua26l97zuK/sync"
      res = requests.post(ap_webhook_url, data=json.dumps(output_data),headers={'Content-Type': 'application/json'})
-     return res
+     result = await res.json()
+     return result
+ 
 async def get_job(job_id):
     organisation_name = os.getenv('ORGANIZATION_NAME')
     salad_key = os.getenv('SALAD_KEY')    
@@ -140,9 +145,9 @@ async def transcribe_voice(file: UploadFile = File(...)):
             get_transcription = await get_job(job_id)
             if get_transcription:                
                 output_data = {"transcript" : get_transcription['output']['text']}
-                webhook_trigger = webhook_ap(output_data)
+                webhook_trigger = await webhook_ap(output_data)
                 print("AP hook trigger",webhook_trigger)
-                return output_data       
+                return output_data     
             
     except requests.exceptions.RequestException as e:
         raise HTTPException(status_code=500, detail=f"Error during request: {e}")
