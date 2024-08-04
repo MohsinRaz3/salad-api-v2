@@ -1,6 +1,6 @@
 import os
 import time
-import requests
+import requests, json
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from b2sdk.v2 import InMemoryAccountInfo, B2Api
@@ -43,7 +43,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
+async def webhook_ap(output_data):
+     ap_webhook_url = "https://cloud.activepieces.com/api/v1/webhooks/7E5rrdz8vuCua26l97zuK"
+     res = requests.post(ap_webhook_url, data=json.dumps(output_data),headers={'Content-Type': 'application/json'})
+     return res
 async def get_job(job_id):
     organisation_name = os.getenv('ORGANIZATION_NAME')
     salad_key = os.getenv('SALAD_KEY')    
@@ -129,13 +132,18 @@ async def transcribe_voice(file: UploadFile = File(...)):
                 }
             }
             response = requests.post(url, headers=headers, json=data)
+            
             #response.raise_for_status()
             job_id = response.json()["id"]
 
             list_of_job_ids.append(job_id)
             get_transcription = await get_job(job_id)
-            if get_transcription:
-                return get_transcription['output']['text']
+            if get_transcription:                
+                output_data = {"transcript" : get_transcription['output']['text']}
+                webhook_trigger = webhook_ap(output_data)
+                print("AP hook trigger",webhook_trigger)
+                return output_data       
+            
     except requests.exceptions.RequestException as e:
         raise HTTPException(status_code=500, detail=f"Error during request: {e}")
     except Exception as e:
