@@ -129,7 +129,7 @@ async def transcribe_voice(file: UploadFile = File(...)):
                 }
             }
             response = requests.post(url, headers=headers, json=data)
-            response.raise_for_status()
+            #response.raise_for_status()
             job_id = response.json()["id"]
 
             list_of_job_ids.append(job_id)
