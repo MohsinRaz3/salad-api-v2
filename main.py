@@ -3,6 +3,7 @@ import time
 import requests, json
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from b2sdk.v2 import InMemoryAccountInfo, B2Api
 from dotenv import load_dotenv
 
@@ -15,6 +16,7 @@ app = FastAPI(
 )
 
 origins = [
+    "https://typebot.co/mohsinraz",
     "https://salad-api-v2.onrender.com",
     "https://salad-api-v2.onrender.com/",
     "https://salad-api-v2.onrender.com/transcribe"
