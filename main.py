@@ -1,6 +1,7 @@
 import os
 import time
 import requests, json
+import fal_client
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
@@ -16,10 +17,11 @@ app = FastAPI(
 )
 
 origins = [
+    
     "https://typebot.co/mohsinraz",
-    "https://salad-api-v2.onrender.com",
-    "https://salad-api-v2.onrender.com/",
-    "https://salad-api-v2.onrender.com/transcribe"
+    "https://salad-api-v2-zrui.onrender.com",
+    "https://salad-api-v2-zrui.onrender.com/",
+    "https://salad-api-v2-zrui.onrender.com/transcribe"
     "https://rocket-tools.netlify.app/",
     "https://rocket-tools.netlify.app",
     "https://salad-api.vercel.app/",
@@ -47,12 +49,44 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+FAL_API_KEY = os.getenv('FAL_API')
+
+async def img_webhook_ap(output_data):
+     ap_webhook_url = "https://cloud.activepieces.com/api/v1/webhooks/7SjaMFw5xjjRFJsHYi90S"
+     res = requests.post(ap_webhook_url, data=json.dumps(output_data),headers={'Content-Type': 'application/json'})
+     return
 
 async def webhook_ap(output_data):
      ap_webhook_url = "https://cloud.activepieces.com/api/v1/webhooks/v1paRjoAYx8qek5kFJjuj"
      res = requests.post(ap_webhook_url, data=json.dumps(output_data),headers={'Content-Type': 'application/json'})
      return
- 
+
+async def submit(user_prompt: str):
+    try:
+        handler = await fal_client.submit_async(
+            "fal-ai/flux/schnell",
+            arguments={"prompt": user_prompt},
+        )
+
+        log_index = 0
+        async for event in handler.iter_events(with_logs=True):
+            if isinstance(event, fal_client.InProgress):
+                new_logs = event.logs[log_index:]
+                for log in new_logs:
+                    print(log["message"])
+                log_index = len(event.logs)
+
+        result = await handler.get()
+        if 'images' not in result or not result['images']:
+            raise HTTPException(status_code=500, detail="No images returned from the API")
+
+        return {"image_url": result['images'][0]['url']}
+    
+    except fal_client.FalClientError:
+        raise HTTPException(status_code=500, detail="Failed to communicate with the image generation service")
+    except Exception:
+        raise HTTPException(status_code=500, detail="An unexpected error occurred")
+
 async def get_job(job_id):
     organisation_name = os.getenv('ORGANIZATION_NAME')
     salad_key = os.getenv('SALAD_KEY')    
@@ -107,6 +141,18 @@ async def upload_b2_storage(file: UploadFile):
 @app.get("/")
 async def home_notes():
     return {"message": "RocketTools root!"}
+
+@app.post("/prompt/{user_prompt}")
+async def image_prompt(user_prompt: str):
+    try:
+        img_url = await submit(user_prompt) 
+        await img_webhook_ap(img_url)
+        return {"image_url": img_url}
+    except HTTPException as e:
+        raise e
+    except Exception:
+        raise HTTPException(status_code=500, detail="An unexpected error occurred")
+
 
 @app.post("/transcribe")
 async def transcribe_voice(file: UploadFile = File(...)):

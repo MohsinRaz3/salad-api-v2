@@ -7,3 +7,4 @@ aiofiles==24.1.0
 b2sdk==2.5.0
 python-dotenv
 mangum
+fal_client
