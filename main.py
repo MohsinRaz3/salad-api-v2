@@ -64,7 +64,7 @@ async def webhook_ap(output_data):
 async def submit(user_prompt: str):
     try:
         handler = await fal_client.submit_async(
-            "fal-ai/flux/dev",
+            "fal-ai/flux-pro",
             arguments={"prompt": user_prompt},
         )
 
