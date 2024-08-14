@@ -42,7 +42,7 @@ async def serp_keyword(text_keywords: str):
     
     # Use httpx for asynchronous requests
     async with httpx.AsyncClient() as client:
-        url = "https://cloud.activepieces.com/api/v1/webhooks/rGPVtIDZ58aEuf1sVDWuw"
+        url = "https://cloud.activepieces.com/api/v1/webhooks/vodwm6aL48gKm0b6pKbZo"
         headers = {"Content-Type": "application/json"}
         data = {"titles": titles}  # Wrap the list in a dictionary
         response = await client.post(url, json=data, headers=headers)
