@@ -8,6 +8,8 @@ from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from b2sdk.v2 import InMemoryAccountInfo, B2Api
 from dotenv import load_dotenv
 
+from utils.serpseo import serp_keyword
+
 load_dotenv()
 app = FastAPI(
     title="RocketTools",
@@ -54,7 +56,7 @@ FAL_API_KEY = os.getenv('FAL_API')
 async def img_webhook_ap(output_data):
      ap_webhook_url = "https://cloud.activepieces.com/api/v1/webhooks/7SjaMFw5xjjRFJsHYi90S"
      res = requests.post(ap_webhook_url, data=json.dumps(output_data),headers={'Content-Type': 'application/json'})
-     return
+     return 
 
 async def webhook_ap(output_data):
      ap_webhook_url = "https://cloud.activepieces.com/api/v1/webhooks/v1paRjoAYx8qek5kFJjuj"
@@ -140,7 +142,17 @@ async def upload_b2_storage(file: UploadFile):
 
 @app.get("/")
 async def home_notes():
-    return {"message": "RocketTools root!"}
+    return {"message": "RocketTools Home!"}
+
+@app.post("/serpseo/{text_keywords}")
+async def serpapi_keyword(text_keywords:str):
+    try:
+        result = await serp_keyword(text_keywords=text_keywords)
+        return result
+    except HTTPException as e:
+        raise e
+    except Exception:
+        raise HTTPException(status_code=500, detail="An unexpected error occurred")
 
 @app.post("/prompt/{user_prompt}")
 async def image_prompt(user_prompt: str):
