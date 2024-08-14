@@ -8,6 +8,8 @@ from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from b2sdk.v2 import InMemoryAccountInfo, B2Api
 from dotenv import load_dotenv
 
+from utils.serpseo import serp_keyword
+
 load_dotenv()
 app = FastAPI(
     title="RocketTools",
@@ -140,7 +142,12 @@ async def upload_b2_storage(file: UploadFile):
 
 @app.get("/")
 async def home_notes():
-    return {"message": "RocketTools root!"}
+    return {"message": "RocketTools Home!"}
+
+@app.post("/serpseo/{text_keywords}")
+async def serpapi_keyword(text_keywords:str)->str:
+    result = await serp_keyword(text_keywords=text_keywords)
+    return result
 
 @app.post("/prompt/{user_prompt}")
 async def image_prompt(user_prompt: str):
