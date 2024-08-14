@@ -145,9 +145,14 @@ async def home_notes():
     return {"message": "RocketTools Home!"}
 
 @app.post("/serpseo/{text_keywords}")
-async def serpapi_keyword(text_keywords:str)->str:
-    result = await serp_keyword(text_keywords=text_keywords)
-    return result
+async def serpapi_keyword(text_keywords:str):
+    try:
+        result = await serp_keyword(text_keywords=text_keywords)
+        return result
+    except HTTPException as e:
+        raise e
+    except Exception:
+        raise HTTPException(status_code=500, detail="An unexpected error occurred")
 
 @app.post("/prompt/{user_prompt}")
 async def image_prompt(user_prompt: str):

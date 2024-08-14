@@ -1,28 +1,42 @@
 from serpapi import GoogleSearch
 from dotenv import load_dotenv
 import os
+from typing import List, Dict
+from fastapi import FastAPI
+from pydantic import BaseModel
+
 load_dotenv()
 
-async def serp_keyword(text_keywords:str)->str:
-  keywords = [text_keywords]
+app = FastAPI()
 
-  for keyword in keywords:
-      params = {
-          "engine": "google",
-          "q": keyword,
-          "hl": "en",
-          "google_domain": "google.com",
-          "num": "5",
-          "start": "10",
-          "safe": "active",
-          "api_key": os.getenv("SERP_API_KEY")
-      }
+# Define a Pydantic model for the response
+class SEOOutput(BaseModel):
+    seo_output: List[str]
 
-      search = GoogleSearch(params)
-      results = search.get_dict()
-      organic_results = results.get("organic_results", [])
+@app.get("/search/", response_model=SEOOutput)
+async def serp_keyword(text_keywords: str) -> SEOOutput:
+    keywords = [text_keywords]
+    titles = []
 
-      for result in organic_results:
-          title = result.get("title", "No title available")
-          print(title)
-          return {"seo_output": title}
+    for keyword in keywords:
+        params = {
+            "engine": "google",
+            "q": keyword,
+            "hl": "en",
+            "google_domain": "google.com",
+            "num": "10",  # Get top 10 results
+            "start": "0",
+            "safe": "active",
+            "api_key": os.getenv("SERP_API_KEY")
+        }
+
+        search = GoogleSearch(params)
+        results = search.get_dict()
+        organic_results = results.get("organic_results", [])
+
+        # Collect up to 5 titles from the top 10 results
+        for result in organic_results[:5]:
+            title = result.get("title", "No title available")
+            titles.append(title)
+    
+    return SEOOutput(seo_output=titles)
