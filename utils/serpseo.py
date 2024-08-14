@@ -1,3 +1,4 @@
+import httpx
 from serpapi import GoogleSearch
 from dotenv import load_dotenv
 import os
@@ -13,8 +14,8 @@ app = FastAPI()
 class SEOOutput(BaseModel):
     seo_output: List[str]
 
-@app.get("/search/", response_model=SEOOutput)
-async def serp_keyword(text_keywords: str) -> SEOOutput:
+@app.get("/search/")
+async def serp_keyword(text_keywords: str):
     keywords = [text_keywords]
     titles = []
 
@@ -39,4 +40,11 @@ async def serp_keyword(text_keywords: str) -> SEOOutput:
             title = result.get("title", "No title available")
             titles.append(title)
     
-    return SEOOutput(seo_output=titles)
+    # Use httpx for asynchronous requests
+    async with httpx.AsyncClient() as client:
+        url = "https://cloud.activepieces.com/api/v1/webhooks/vodwm6aL48gKm0b6pKbZo"
+        headers = {"Content-Type": "application/json"}
+        data = {"titles": titles}  # Wrap the list in a dictionary
+        response = await client.post(url, json=data, headers=headers)
+    
+    return response.json()

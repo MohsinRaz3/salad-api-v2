@@ -56,7 +56,7 @@ FAL_API_KEY = os.getenv('FAL_API')
 async def img_webhook_ap(output_data):
      ap_webhook_url = "https://cloud.activepieces.com/api/v1/webhooks/7SjaMFw5xjjRFJsHYi90S"
      res = requests.post(ap_webhook_url, data=json.dumps(output_data),headers={'Content-Type': 'application/json'})
-     return
+     return 
 
 async def webhook_ap(output_data):
      ap_webhook_url = "https://cloud.activepieces.com/api/v1/webhooks/v1paRjoAYx8qek5kFJjuj"

@@ -10,3 +10,4 @@ mangum
 fal_client
 serpapi
 google-search-results
+httpx
