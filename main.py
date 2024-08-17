@@ -20,39 +20,38 @@ app = FastAPI(
     version="v1",
 )
 
-origins = [
+# origins = [
     
-    "https://typebot.co/mohsinraz",
-    "https://salad-api-v2-zrui.onrender.com",
-    "https://salad-api-v2-zrui.onrender.com/",
-    "https://salad-api-v2-zrui.onrender.com/transcribe"
-    "https://rocket-tools.netlify.app/",
-    "https://rocket-tools.netlify.app",
-    "https://api.scrapeowl.com/v1/scrape",
-    "https://api.scrapeowl.com/",
-    "https://cloud.activepieces.com/api/v1/webhooks/VKcq0ji9g6BItj59d9h1l",
-    "https://cloud.activepieces.com/"
-    "https://salad-api.vercel.app/",
-    "https://salad-api.vercel.app/transcribe",
-    "https://salad-api.vercel.app",
-    "http://localhost:3000/",
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "http://127.0.0.1:8000/",
-    "http://localhost:3001/",
-    "http://localhost",
-    "http://localhost:8000/",
-    "http://localhost:8000",
-    "http://127.0.0.1:8000",
-    "http://127.0.0.1:3000/",
-    "http://localhost",
-    "http://localhost:8000",
-    "http://localhost:3000",
-]
+#     "https://typebot.co/mohsinraz",
+#     "https://salad-api-v2-zrui.onrender.com",
+#     "https://salad-api-v2-zrui.onrender.com/",
+#     "https://salad-api-v2-zrui.onrender.com/transcribe"
+#     "https://rocket-tools.netlify.app/",
+#     "https://rocket-tools.netlify.app",
+#     "https://api.scrapeowl.com/v1/scrape",
+#     "https://api.scrapeowl.com/",
+#     "https://cloud.activepieces.com/api/v1/webhooks/VKcq0ji9g6BItj59d9h1l",
+#     "https://cloud.activepieces.com/"
+#     "https://salad-api.vercel.app/",
+#     "https://salad-api.vercel.app/transcribe",
+#     "https://salad-api.vercel.app",
+#     "http://localhost:3000/",
+#     "http://localhost:3000",
+#     "http://127.0.0.1:3000",
+#     "http://127.0.0.1:8000/",
+#     "http://localhost:3001/",
+#     "http://localhost",
+#     "http://localhost:8000/",
+#     "http://localhost:8000",
+#     "http://127.0.0.1:8000",
+#     "http://127.0.0.1:3000/",
+#     "http://localhost",
+#     "http://localhost:8000",
+#     "http://localhost:3000",
+# ]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
     allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
