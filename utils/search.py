@@ -1,6 +1,7 @@
 import asyncio
 import time
 import random
+from typing import Any
 import httpx
 import os
 from bs4 import BeautifulSoup
@@ -13,7 +14,7 @@ SCRAPEOWL_URL = 'https://api.scrapeowl.com/v1/scrape'
 MAX_RETRIES = 5 
 FIXED_DELAY = 10 
 
-async def search_query(query: str):
+async def search_query(query: Any):
     urls = []
 
     for url in search(query, lang="en", sleep_interval=3, num_results=7):
@@ -22,7 +23,7 @@ async def search_query(query: str):
     return urls
 
 
-async def scrape_website(query: str):
+async def scrape_website(query: Any):
     urls = await search_query(query)
     
     async with httpx.AsyncClient() as client:

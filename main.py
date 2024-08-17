@@ -1,5 +1,6 @@
 import os
 import time
+from typing import Any
 import requests, json
 import fal_client
 from fastapi import FastAPI, File, Query, UploadFile, HTTPException
@@ -147,7 +148,7 @@ async def home_notes():
     return {"message": "RocketTools Home!"}
 
 @app.post("/scrapeowl")
-async def serpapi_keyword(query:str = Query(...)):
+async def serpapi_keyword(query:Any = Query(...)):
     try:
         result = await scrape_website(query=query)
         return result
