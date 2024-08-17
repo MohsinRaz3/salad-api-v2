@@ -94,7 +94,7 @@ async def scrape_website(query: str):
             data = {"blog_data": ""}  # Wrap the list in a dictionary
             response = await client.post(wh_url, json=data, headers={"Content-Type": "application/json"})
 
-    return result 
+    return 
 
 
 # Run the functions
