@@ -11,3 +11,6 @@ fal_client
 serpapi
 google-search-results
 httpx
+googlesearch-python
+beautifulsoup4
+html5lib
