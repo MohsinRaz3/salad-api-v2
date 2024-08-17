@@ -150,8 +150,8 @@ async def upload_b2_storage(file: UploadFile):
 async def home_notes():
     return {"message": "RocketTools Home!"}
 
-@app.post("/scrapeowl/")
-async def serpapi_keyword(query:str = Query(None)):
+@app.post("/scrapeowl")
+async def serpapi_keyword(query:str = Query(...)):
     try:
         print("This is queryyy",query)
         # asyncio.run(scrape_website(query=query))
