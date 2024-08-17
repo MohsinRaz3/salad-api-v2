@@ -1,16 +1,12 @@
-import asyncio
 import os
 import time
 import requests, json
 import fal_client
 from fastapi import FastAPI, File, Query, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from b2sdk.v2 import InMemoryAccountInfo, B2Api
 from dotenv import load_dotenv
-
 from utils.search import scrape_website
-# from utils.serpseo import serp_keyword
 
 load_dotenv()
 app = FastAPI(
@@ -20,39 +16,39 @@ app = FastAPI(
     version="v1",
 )
 
-origins = [
+# origins = [
     
-    "https://typebot.co/mohsinraz",
-    "https://salad-api-v2-zrui.onrender.com",
-    "https://salad-api-v2-zrui.onrender.com/",
-    "https://salad-api-v2-zrui.onrender.com/transcribe"
-    "https://rocket-tools.netlify.app/",
-    "https://rocket-tools.netlify.app",
-    "https://api.scrapeowl.com/v1/scrape",
-    "https://api.scrapeowl.com/",
-    "https://cloud.activepieces.com/api/v1/webhooks/VKcq0ji9g6BItj59d9h1l",
-    "https://cloud.activepieces.com/"
-    "https://salad-api.vercel.app/",
-    "https://salad-api.vercel.app/transcribe",
-    "https://salad-api.vercel.app",
-    "http://localhost:3000/",
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "http://127.0.0.1:8000/",
-    "http://localhost:3001/",
-    "http://localhost",
-    "http://localhost:8000/",
-    "http://localhost:8000",
-    "http://127.0.0.1:8000",
-    "http://127.0.0.1:3000/",
-    "http://localhost",
-    "http://localhost:8000",
-    "http://localhost:3000",
-]
+#     "https://typebot.co/mohsinraz",
+#     "https://salad-api-v2-zrui.onrender.com",
+#     "https://salad-api-v2-zrui.onrender.com/",
+#     "https://salad-api-v2-zrui.onrender.com/transcribe"
+#     "https://rocket-tools.netlify.app/",
+#     "https://rocket-tools.netlify.app",
+#     "https://api.scrapeowl.com/v1/scrape",
+#     "https://api.scrapeowl.com/",
+#     "https://cloud.activepieces.com/api/v1/webhooks/VKcq0ji9g6BItj59d9h1l",
+#     "https://cloud.activepieces.com/"
+#     "https://salad-api.vercel.app/",
+#     "https://salad-api.vercel.app/transcribe",
+#     "https://salad-api.vercel.app",
+#     "http://localhost:3000/",
+#     "http://localhost:3000",
+#     "http://127.0.0.1:3000",
+#     "http://127.0.0.1:8000/",
+#     "http://localhost:3001/",
+#     "http://localhost",
+#     "http://localhost:8000/",
+#     "http://localhost:8000",
+#     "http://127.0.0.1:8000",
+#     "http://127.0.0.1:3000/",
+#     "http://localhost",
+#     "http://localhost:8000",
+#     "http://localhost:3000",
+# ]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -153,11 +149,9 @@ async def home_notes():
 @app.post("/scrapeowl")
 async def serpapi_keyword(query:str = Query(...)):
     try:
-        print("This is queryyy",query)
-        # asyncio.run(scrape_website(query=query))
         result = await scrape_website(query=query)
-        print("result : ", result)
         return result
+    
     except HTTPException as e:
         raise e
     except Exception as e:
