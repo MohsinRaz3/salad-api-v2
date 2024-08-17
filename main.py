@@ -3,7 +3,7 @@ import time
 from typing import Any
 import requests, json
 import fal_client
-from fastapi import FastAPI, File, Query, UploadFile, HTTPException
+from fastapi import Body, FastAPI, File, Query, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from b2sdk.v2 import InMemoryAccountInfo, B2Api
 from dotenv import load_dotenv
@@ -148,7 +148,7 @@ async def home_notes():
     return {"message": "RocketTools Home!"}
 
 @app.post("/scrapeowl")
-async def serpapi_keyword(query:Any = Query(...)):
+async def serpapi_keyword(query: str = Body(..., embed=True)):
     try:
         result = await scrape_website(query=query)
         return result
