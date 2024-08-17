@@ -1,14 +1,16 @@
+import asyncio
 import os
 import time
 import requests, json
 import fal_client
-from fastapi import FastAPI, File, UploadFile, HTTPException
+from fastapi import FastAPI, File, Query, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from b2sdk.v2 import InMemoryAccountInfo, B2Api
 from dotenv import load_dotenv
 
-from utils.serpseo import serp_keyword
+from utils.search import scrape_website
+# from utils.serpseo import serp_keyword
 
 load_dotenv()
 app = FastAPI(
@@ -26,6 +28,10 @@ origins = [
     "https://salad-api-v2-zrui.onrender.com/transcribe"
     "https://rocket-tools.netlify.app/",
     "https://rocket-tools.netlify.app",
+    "https://api.scrapeowl.com/v1/scrape",
+    "https://api.scrapeowl.com/",
+    "https://cloud.activepieces.com/api/v1/webhooks/VKcq0ji9g6BItj59d9h1l",
+    "https://cloud.activepieces.com/"
     "https://salad-api.vercel.app/",
     "https://salad-api.vercel.app/transcribe",
     "https://salad-api.vercel.app",
@@ -144,18 +150,21 @@ async def upload_b2_storage(file: UploadFile):
 async def home_notes():
     return {"message": "RocketTools Home!"}
 
-@app.post("/serpseo/{text_keywords}")
-async def serpapi_keyword(text_keywords:str):
+@app.post("/scrapeowl/{text_keywords}")
+async def serpapi_keyword(query:str = Query(None))-> None:
     try:
-        result = await serp_keyword(text_keywords=text_keywords)
+        # asyncio.run(scrape_website(query=query))
+        result = await scrape_website(query=query)
+        print("result : ", result)
         return result
     except HTTPException as e:
         raise e
-    except Exception:
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
         raise HTTPException(status_code=500, detail="An unexpected error occurred")
 
 @app.post("/prompt/{user_prompt}")
-async def image_prompt(user_prompt: str):
+async def image_prompt(user_prompt:str):
     try:
         img_url = await submit(user_prompt) 
         await img_webhook_ap(img_url)
