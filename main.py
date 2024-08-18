@@ -1,6 +1,7 @@
 import os
 import time
 from typing import Any
+from fastapi.responses import JSONResponse
 import requests, json
 import fal_client
 from fastapi import Body, FastAPI, File, Query, UploadFile, HTTPException
@@ -151,7 +152,7 @@ async def home_notes():
 async def serpapi_keyword(query: str = Body(..., embed=True)):
     try:
         result = await scrape_website(query=query)
-        return result
+        return JSONResponse(content={"status": "success", "query": result})
     
     except HTTPException as e:
         raise e
