@@ -30,7 +30,7 @@ async def search_query(query: Any):
 async def scrape_website(query: Any):
     print("voice file2 : ",query)
     urls = await search_query(query)
-    print("all urls : ",query)
+    print("all urls : ",urls)
 
     
     async with httpx.AsyncClient() as client:
