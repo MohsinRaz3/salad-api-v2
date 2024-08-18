@@ -150,9 +150,10 @@ async def home_notes():
 
 @app.post("/scrapeowl")
 async def serpapi_keyword(query: str = Body(..., embed=True)):
-    print("voice file : ",query)
+    print("voice file1 : ",query)
+    
     try:
-        result = await scrape_website(query=query)
+        result = await scrape_website( data=json.dumps(query=query))
         return JSONResponse(content={"status": "success", "query": result})
     
     except HTTPException as e:

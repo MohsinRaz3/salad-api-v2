@@ -15,16 +15,23 @@ MAX_RETRIES = 5
 FIXED_DELAY = 10 
 
 async def search_query(query: Any):
+    print("voice file3 : ",query)
+
     urls = []
 
     for url in search(query, lang="en", sleep_interval=3, num_results=7):
+        print("voice file4 : ",query)
+
         urls.append(url)
         time.sleep(random.uniform(3, 7)) 
     return urls
 
 
 async def scrape_website(query: Any):
+    print("voice file2 : ",query)
     urls = await search_query(query)
+    print("all urls : ",query)
+
     
     async with httpx.AsyncClient() as client:
         result = []
