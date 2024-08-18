@@ -75,7 +75,7 @@ async def scrape_website(query: Any):
                     break
 
         if result:    
-            wh_url = "https://cloud.activepieces.com/api/v1/webhooks/VKcq0ji9g6BItj59d9h1l"
+            wh_url = "https://cloud.activepieces.com/api/v1/webhooks/0AbBBSdtEkxdADBfR1hdO"
             data = {"blog_data": result} 
             response = await client.post(wh_url, json=data, headers={"Content-Type": "application/json"})
             
@@ -86,7 +86,7 @@ async def scrape_website(query: Any):
                 return response.status_code
                 #print(f"Failed to send data to the webhook. Status code: {response.status_code}")
         else:
-            wh_url = "https://cloud.activepieces.com/api/v1/webhooks/VKcq0ji9g6BItj59d9h1l"
+            wh_url = "https://cloud.activepieces.com/api/v1/webhooks/0AbBBSdtEkxdADBfR1hdO"
             data = {"blog_data": ""} 
             response = await client.post(wh_url, json=data, headers={"Content-Type": "application/json"})
 

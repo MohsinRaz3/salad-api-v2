@@ -12,7 +12,7 @@ from utils.search import scrape_website
 load_dotenv()
 app = FastAPI(
     title="RocketTools",
-    description="RocketTools' voice rec",
+    description="RocketTools' AI",
     docs_url="/docs",
     version="v1",
 )
