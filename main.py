@@ -1,52 +1,55 @@
 import os
 import time
+from typing import Any
 import requests, json
 import fal_client
-from fastapi import FastAPI, File, UploadFile, HTTPException
+from fastapi import Body, FastAPI, File, Query, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from b2sdk.v2 import InMemoryAccountInfo, B2Api
 from dotenv import load_dotenv
-
-from utils.serpseo import serp_keyword
+from utils.search import scrape_website
 
 load_dotenv()
 app = FastAPI(
     title="RocketTools",
-    description="RocketTools' voice rec",
+    description="RocketTools' AI",
     docs_url="/docs",
     version="v1",
 )
 
-origins = [
+# origins = [
     
-    "https://typebot.co/mohsinraz",
-    "https://salad-api-v2-zrui.onrender.com",
-    "https://salad-api-v2-zrui.onrender.com/",
-    "https://salad-api-v2-zrui.onrender.com/transcribe"
-    "https://rocket-tools.netlify.app/",
-    "https://rocket-tools.netlify.app",
-    "https://salad-api.vercel.app/",
-    "https://salad-api.vercel.app/transcribe",
-    "https://salad-api.vercel.app",
-    "http://localhost:3000/",
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "http://127.0.0.1:8000/",
-    "http://localhost:3001/",
-    "http://localhost",
-    "http://localhost:8000/",
-    "http://localhost:8000",
-    "http://127.0.0.1:8000",
-    "http://127.0.0.1:3000/",
-    "http://localhost",
-    "http://localhost:8000",
-    "http://localhost:3000",
-]
+#     "https://typebot.co/mohsinraz",
+#     "https://salad-api-v2-zrui.onrender.com",
+#     "https://salad-api-v2-zrui.onrender.com/",
+#     "https://salad-api-v2-zrui.onrender.com/transcribe"
+#     "https://rocket-tools.netlify.app/",
+#     "https://rocket-tools.netlify.app",
+#     "https://api.scrapeowl.com/v1/scrape",
+#     "https://api.scrapeowl.com/",
+#     "https://cloud.activepieces.com/api/v1/webhooks/VKcq0ji9g6BItj59d9h1l",
+#     "https://cloud.activepieces.com/"
+#     "https://salad-api.vercel.app/",
+#     "https://salad-api.vercel.app/transcribe",
+#     "https://salad-api.vercel.app",
+#     "http://localhost:3000/",
+#     "http://localhost:3000",
+#     "http://127.0.0.1:3000",
+#     "http://127.0.0.1:8000/",
+#     "http://localhost:3001/",
+#     "http://localhost",
+#     "http://localhost:8000/",
+#     "http://localhost:8000",
+#     "http://127.0.0.1:8000",
+#     "http://127.0.0.1:3000/",
+#     "http://localhost",
+#     "http://localhost:8000",
+#     "http://localhost:3000",
+# ]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -144,18 +147,20 @@ async def upload_b2_storage(file: UploadFile):
 async def home_notes():
     return {"message": "RocketTools Home!"}
 
-@app.post("/serpseo/{text_keywords}")
-async def serpapi_keyword(text_keywords:str):
+@app.post("/scrapeowl")
+async def serpapi_keyword(query: str = Body(..., embed=True)):
     try:
-        result = await serp_keyword(text_keywords=text_keywords)
+        result = await scrape_website(query=query)
         return result
+    
     except HTTPException as e:
         raise e
-    except Exception:
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
         raise HTTPException(status_code=500, detail="An unexpected error occurred")
 
 @app.post("/prompt/{user_prompt}")
-async def image_prompt(user_prompt: str):
+async def image_prompt(user_prompt:str):
     try:
         img_url = await submit(user_prompt) 
         await img_webhook_ap(img_url)
