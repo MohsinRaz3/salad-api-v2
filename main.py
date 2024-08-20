@@ -149,7 +149,7 @@ async def home_notes():
     return {"message": "RocketTools Home!"}
 
 @app.post("/scrapeowl")
-async def serpapi_keyword(query: str, background_tasks:BackgroundTasks):
+async def serpapi_keyword(query: Any, background_tasks:BackgroundTasks):
     print("voice file1 : ",query)
     try:
         
