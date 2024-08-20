@@ -4,7 +4,7 @@ from typing import Any
 from fastapi.responses import JSONResponse
 import requests, json
 import fal_client
-from fastapi import Body, FastAPI, File, Query, UploadFile, HTTPException
+from fastapi import Body, FastAPI, File, Query, UploadFile, HTTPException,BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from b2sdk.v2 import InMemoryAccountInfo, B2Api
 from dotenv import load_dotenv
@@ -149,12 +149,13 @@ async def home_notes():
     return {"message": "RocketTools Home!"}
 
 @app.post("/scrapeowl")
-async def serpapi_keyword(query: str = Body(..., embed=True)):
-    #print("voice file1 : ",query)
+async def serpapi_keyword( background_tasks:BackgroundTasks, query: str = Body(..., embed=True)):
+    print("voice file1 : ",query)
     try:
-        result = await scrape_website(query=query)
-        return JSONResponse(content={"status": "success", "query": result})
-    
+        # result = await scrape_website(query=query)
+        background_tasks.add_task(scrape_website, query)
+        return {"status": "success", "message": "scraping has started in the background."}
+        
     except HTTPException as e:
         raise e
     except Exception as e:
