@@ -19,7 +19,7 @@ async def search_query(query: Any):
 
     urls = []
 
-    for url in search(query, lang="en", sleep_interval=3, num_results=7):
+    for url in search(query, lang="en", sleep_interval=3, num_results=6):
        # print("voice file4 : ",query)
 
         urls.append(url)
