@@ -150,7 +150,7 @@ async def home_notes():
 
 @app.post("/scrapeowl")
 async def serpapi_keyword( background_tasks:BackgroundTasks, query: str = Body(..., embed=True)):
-    print("voice file1 : ",query)
+  #  print("voice file1 : ",query)
     try:
         # result = await scrape_website(query=query)
         background_tasks.add_task(scrape_website, query)
