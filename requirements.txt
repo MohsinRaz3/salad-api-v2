@@ -14,3 +14,4 @@ httpx
 googlesearch-python
 beautifulsoup4
 html5lib
+openai

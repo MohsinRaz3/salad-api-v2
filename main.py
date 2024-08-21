@@ -9,6 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from b2sdk.v2 import InMemoryAccountInfo, B2Api
 from dotenv import load_dotenv
 from utils.search import scrape_website
+from utils.openaiapi import user_response
 
 load_dotenv()
 app = FastAPI(
@@ -144,6 +145,7 @@ async def upload_b2_storage(file: UploadFile):
         raise HTTPException(status_code=500, detail=f"File upload failed: {e}")
 
 
+
 @app.get("/")
 async def home_notes():
     return {"message": "RocketTools Home!"}
@@ -151,8 +153,9 @@ async def home_notes():
 @app.post("/scrapeowl")
 async def serpapi_keyword( background_tasks:BackgroundTasks, query: str = Body(..., embed=True)):
     try:
-        # result = await scrape_website(query=query)
-        background_tasks.add_task(scrape_website, query)
+        user_query =  user_response(query) 
+        print("uerrrr queryy",user_query)
+        background_tasks.add_task(scrape_website, user_query)
         return {"status": "success", "message": "scraping has begun."}
         
     except HTTPException as e:
