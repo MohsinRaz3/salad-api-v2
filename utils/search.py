@@ -7,6 +7,8 @@ import os
 from bs4 import BeautifulSoup
 from googlesearch import search
 from dotenv import load_dotenv
+from utils.openaiapi import user_response
+
 load_dotenv()
 
 SCRAPEOWL_API_KEY =  os.getenv('SCRAPEOWL_API_KEY')
@@ -15,8 +17,10 @@ MAX_RETRIES = 5
 FIXED_DELAY = 10 
 
 async def search_query(query: Any):
+    user_query = await user_response(query) 
+    if not user_query:
+            raise ValueError("Invalid query")
    # print("voice file3 : ",query)
-
     urls = []
 
     for url in search(query, lang="en", sleep_interval=3, num_results=6):
