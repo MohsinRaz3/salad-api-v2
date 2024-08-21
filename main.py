@@ -9,7 +9,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from b2sdk.v2 import InMemoryAccountInfo, B2Api
 from dotenv import load_dotenv
 from utils.search import scrape_website
-from utils.openaiapi import user_response
 
 load_dotenv()
 app = FastAPI(
@@ -153,12 +152,9 @@ async def home_notes():
 @app.post("/scrapeowl")
 async def serpapi_keyword( background_tasks:BackgroundTasks, query: str = Body(..., embed=True)):
     try:
-        user_query = await user_response(query) 
-        if not user_query:
-            raise ValueError("Invalid query")
         
-        print("User query:", user_query)
-        background_tasks.add_task(scrape_website, user_query)
+        print("User query:", query)
+        background_tasks.add_task(scrape_website, query)
         return {"status": "success", "message": "scraping has begun."}
         
     except HTTPException as e:
