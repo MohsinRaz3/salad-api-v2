@@ -102,5 +102,5 @@ async def scrape_website(query: Any):
             data = {"blog_data": ""} 
             response = await client.post(wh_url, json=data, headers={"Content-Type": "application/json"})
 
-    return 
+    return {"message" : "task finished"}
 
