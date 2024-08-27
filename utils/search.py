@@ -32,9 +32,10 @@ async def search_query(query: Any):
 
 
 async def scrape_website(query: Any):
-   # print("voice file2 : ",query)
+    #print("Transacript data :",query, "ending")
+    user_transcript = query
     urls = await search_query(query)
-    print("all urls : ",urls)
+    #print("all urls : ",urls)
 
     
     async with httpx.AsyncClient() as client:
@@ -87,8 +88,8 @@ async def scrape_website(query: Any):
 
         if result:    
             wh_url = "https://cloud.activepieces.com/api/v1/webhooks/0AbBBSdtEkxdADBfR1hdO"
-            data = {"blog_data": result} 
-           # print("result 4:",result)
+            data = {"blog_data": result, "user_transcript" : user_transcript} 
+            print("All blogs here:",result)
             response = await client.post(wh_url, json=data, headers={"Content-Type": "application/json"})
             
             if response.status_code == 200:
