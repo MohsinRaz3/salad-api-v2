@@ -23,11 +23,11 @@ async def search_query(query: Any):
    # print("voice file3 : ",query)
     urls = []
 
-    for url in search(query, lang="en", num_results=5):
+    for url in search(query, lang="en",sleep_interval=15,  safe=None ,num_results=5):
        # print("voice file4 : ",query)
 
         urls.append(url)
-        time.sleep(random.uniform(10, 20)) 
+        #time.sleep(random.uniform(10, 20)) 
     return urls
 
 
@@ -48,10 +48,9 @@ async def scrape_website(query: Any):
                     {"type": "css", "selector": "title"},
                     {"type": "css", "selector": "h1"},
                     {"type": "css", "selector": "p"}
-                ],
-                
-                "premium_proxies": True,
-                "country": "us",
+                ],               
+                # "premium_proxies": True,
+                # "country": "us",
                 "json_response": False
             }
             headers = {"Content-Type": "application/json"}
