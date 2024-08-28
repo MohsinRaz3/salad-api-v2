@@ -112,8 +112,8 @@ async def scrape_website(query: Any, fixed_delay: int = 15):
             else:
                 return response.status_code
         else:
-            wh_url = "https://cloud.activepieces.com/api/v1/webhooks/0AbBBSdtEkxdADBfR1hdO"
-            data = {"blog_data": ""}
-            response = await client.post(wh_url, json=data, headers={"Content-Type": "application/json"})
+            # wh_url = "https://cloud.activepieces.com/api/v1/webhooks/0AbBBSdtEkxdADBfR1hdO"
+            # data = {"blog_data": ""}
+            # response = await client.post(wh_url, json=data, headers={"Content-Type": "application/json"})
             print("Empty webhook sent")
     return {"message": "task finished"}
