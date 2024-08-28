@@ -73,16 +73,20 @@ async def scrape_website(query: Any):
                         'blog_content': blog_content
                     }
                     result.append(url_data)
-                    break 
+                    break  # Exit the loop if the request is successful
 
                 except httpx.HTTPStatusError as http_err:
-                    print(f"HTTP error occurred for {url}: {http_err}")
-                    if attempt < MAX_RETRIES - 1:
-                        print(f"Retrying in {FIXED_DELAY} seconds...")
-                        await asyncio.sleep(FIXED_DELAY)  
+                    if response.status_code == 429:
+                        print(f"429 Too Many Requests for {url}: Retrying in {FIXED_DELAY} seconds...")
+                        await asyncio.sleep(FIXED_DELAY)  # Delay if rate limited
                     else:
-                        print(f"Failed to scrape {url} after {MAX_RETRIES} attempts.")
-                        break
+                        print(f"HTTP error occurred for {url}: {http_err}")
+                        if attempt < MAX_RETRIES - 1:
+                            print(f"Retrying in {FIXED_DELAY} seconds...")
+                            await asyncio.sleep(FIXED_DELAY)
+                        else:
+                            print(f"Failed to scrape {url} after {MAX_RETRIES} attempts.")
+                            break
                 except Exception as err:
                     print(f"An error occurred for {url}: {err}")
                     break
