@@ -155,7 +155,7 @@ async def serpapi_keyword( background_tasks:BackgroundTasks, query: str = Body(.
         
         print("User query:", query)
         background_tasks.add_task(scrape_website, query)
-        return {"status": "success", "message": "scraping has begun."}
+        return {"message": "scraping has begun."}
         
     except HTTPException as e:
         raise e
