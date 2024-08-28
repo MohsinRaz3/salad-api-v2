@@ -27,7 +27,7 @@ async def search_query(query: Any):
        # print("voice file4 : ",query)
 
         urls.append(url)
-        time.sleep(random.uniform(3, 7)) 
+        time.sleep(random.uniform(10, 20)) 
     return urls
 
 
