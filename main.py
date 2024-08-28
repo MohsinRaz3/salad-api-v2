@@ -151,8 +151,7 @@ async def home_notes():
 
 @app.post("/scrapeowl")
 async def serpapi_keyword( background_tasks:BackgroundTasks, query: str = Body(..., embed=True)):
-    try:
-        
+    try:  
         print("User query:", query)
         background_tasks.add_task(scrape_website, query)
         return {"message": "scraping has begun."}
