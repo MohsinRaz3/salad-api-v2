@@ -24,14 +24,14 @@ async def search_query(query: Any):
     urls = []
 
     for url in search(query, lang="en",sleep_interval=5,  safe=None ,num_results=5):
-        print("voice file4 : ",query)
+       # print("voice file4 : ",query)
         urls.append(url)
         time.sleep(random.uniform(3, 7)) 
     return urls
 
 
 async def scrape_website(query: Any):
-    print("Transacript data :",query, "ending")
+    #print("Transacript data :",query, "ending")
     user_transcript = query
     urls = await search_query(query)
     print("all urls : ",urls)
@@ -90,7 +90,7 @@ async def scrape_website(query: Any):
         if result:    
             wh_url = "https://cloud.activepieces.com/api/v1/webhooks/0AbBBSdtEkxdADBfR1hdO"
             data = {"blog_data": result, "user_transcript" : user_transcript} 
-            print("All blogs here:",result)
+           # print("All blogs here:",result)
             response = await client.post(wh_url, json=data, headers={"Content-Type": "application/json"})
             
             if response.status_code == 200:
