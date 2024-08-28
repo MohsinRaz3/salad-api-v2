@@ -49,7 +49,10 @@ async def scrape_website(query: Any):
                     {"type": "css", "selector": "h1"},
                     {"type": "css", "selector": "p"}
                 ],
-                "json_response": False,
+                
+                "premium_proxies": True,
+                "country": "us",
+                "json_response": False
             }
             headers = {"Content-Type": "application/json"}
 
