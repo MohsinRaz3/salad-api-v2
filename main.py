@@ -8,6 +8,7 @@ from fastapi import Body, FastAPI, File, Query, UploadFile, HTTPException,Backgr
 from fastapi.middleware.cors import CORSMiddleware
 from b2sdk.v2 import InMemoryAccountInfo, B2Api
 from dotenv import load_dotenv
+from models import AudioLink
 from utils.salad_transcription import salad_transcription_api
 from utils.search import scrape_website
 
@@ -175,7 +176,7 @@ async def image_prompt(user_prompt:str):
         raise HTTPException(status_code=500, detail="An unexpected error occurred")
 
 @app.post("/salad_transcription/")
-async def salad_transcript(audio_link: str = Query(...)):
+async def salad_transcript(audio_link: AudioLink = Query(...)):
     try:
         transcript = await salad_transcription_api(audio_link=audio_link)
         return "success"

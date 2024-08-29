@@ -36,6 +36,7 @@ async def get_job(job_id):
 
 
 async def salad_transcription_api(audio_link):
+    audio_data = audio_link
     try:
         organization_name =  os.getenv('ORGANIZATION_NAME')
         url = f"https://api.salad.com/api/public/organizations/{organization_name}/inference-endpoints/transcribe/jobs"
@@ -43,7 +44,6 @@ async def salad_transcription_api(audio_link):
         language_code = "en"
         #list_of_audio_files = [audio_link]
 
-        list_of_job_ids = []
         headers = {
             "Salad-Api-Key": salad_key,
             "Content-Type": "application/json",
@@ -67,7 +67,6 @@ async def salad_transcription_api(audio_link):
         job_id = response.json()["id"]
         #print("here is job id",job_id)
 
-        list_of_job_ids.append(job_id)
         get_transcription = await get_job(job_id)
         if get_transcription:                
             output_data = {"transcript" : get_transcription['output']['text']}
