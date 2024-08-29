@@ -9,7 +9,7 @@ load_dotenv()
 
 
 async def pabbly_whook(output_data):
-     ap_webhook_url = "https://connect.pabbly.com/workflow/sendwebhookdata/IjU3NjUwNTY0MDYzZTA0Mzc1MjZhNTUzMjUxM2Ii_pc"
+     ap_webhook_url = ""
      res = requests.post(ap_webhook_url, data=json.dumps(output_data),headers={'Content-Type': 'application/json'})
      return "success"
  
@@ -36,7 +36,6 @@ async def get_job(job_id):
 
 
 async def salad_transcription_api(audio_link):
-    audio_data = audio_link
     try:
         organization_name =  os.getenv('ORGANIZATION_NAME')
         url = f"https://api.salad.com/api/public/organizations/{organization_name}/inference-endpoints/transcribe/jobs"
@@ -70,8 +69,7 @@ async def salad_transcription_api(audio_link):
         get_transcription = await get_job(job_id)
         if get_transcription:                
             output_data = {"transcript" : get_transcription['output']['text']}
-            await pabbly_whook(output_data)
-            #print("data sent to pabbly")
+            #await pabbly_whook(output_data)
             return output_data     
             
     except requests.exceptions.RequestException as e:

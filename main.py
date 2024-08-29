@@ -179,7 +179,7 @@ async def image_prompt(user_prompt:str):
 async def salad_transcript(audio_link: AudioLink = Body(...)):
     try:
         transcript = await salad_transcription_api(audio_link=audio_link.audio_link)
-        return "success"
+        return transcript
     except requests.exceptions.RequestException as e:
         raise HTTPException(status_code=500, detail=f"Error during request: {e}")
     except Exception as e:
