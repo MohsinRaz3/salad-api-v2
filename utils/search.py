@@ -100,20 +100,19 @@ async def scrape_website(query: Any, fixed_delay: int = 15):
                 except Exception as err:
                     print(f"An error occurred for {url}: {err}")
                     break
+                
+            if result:
+                wh_url = "https://cloud.activepieces.com/api/v1/webhooks/0AbBBSdtEkxdADBfR1hdO"
+                data = {"blog_data": result, "user_transcript": user_transcript}
+                response = await client.post(wh_url, json=data, headers={"Content-Type": "application/json"})
 
-        if result:
-            wh_url = "https://cloud.activepieces.com/api/v1/webhooks/0AbBBSdtEkxdADBfR1hdO"
-            data = {"blog_data": result, "user_transcript": user_transcript}
-            response = await client.post(wh_url, json=data, headers={"Content-Type": "application/json"})
-
-            if response.status_code == 200:
-                print("Data successfully sent to the webhook.")
-                return "success"
+                if response.status_code == 200:
+                    print("Data successfully sent to the webhook.")
+                    return "success"
+                else:
+                    print(f"Failed to send data to webhook: {response.status_code}")
+                    return response.status_code
             else:
-                return response.status_code
-        else:
-            # wh_url = "https://cloud.activepieces.com/api/v1/webhooks/0AbBBSdtEkxdADBfR1hdO"
-            # data = {"blog_data": ""}
-            # response = await client.post(wh_url, json=data, headers={"Content-Type": "application/json"})
-            print("Empty webhook sent")
+                print("No data scraped, no webhook sent.")
+                return {"message": "task finished"}
     return {"message": "task finished"}

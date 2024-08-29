@@ -22,3 +22,6 @@ class FileWrapper(BaseModel):
         
         return value
 
+
+class AudioLink(BaseModel):
+    audio_link: str
