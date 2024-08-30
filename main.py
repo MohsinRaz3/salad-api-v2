@@ -180,8 +180,11 @@ async def image_prompt(user_prompt:str):
 
 @app.post("/salad_transcription/")
 async def salad_transcript(audio_link: AudioLink = Body(...)):
+    print("umbeeera 2a", audio_link.audio_link)
     try:
         transcript = await salad_transcription_api(audio_link=audio_link.audio_link)
+        print("umbeeera 2b", transcript)
+
         return transcript
     except httpx.RequestError as e:
         raise HTTPException(status_code=500, detail=f"Error during request: {e}")
