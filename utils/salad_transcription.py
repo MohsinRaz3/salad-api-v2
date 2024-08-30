@@ -69,7 +69,10 @@ async def salad_transcription_api(audio_link):
 
         get_transcription = await get_job(job_id)
         if get_transcription:
-            output_data = {"transcript": get_transcription['output']['text']}
+            print("numbeeeer 1a ", get_transcription)
+            user_transcript = get_transcription.get('output', {}).get('text', '')
+            output_data = {"transcript": user_transcript}
+            print("numbeeeer 1b ", output_data)
             # await pabbly_whook(output_data)  # Uncomment if needed
             return output_data
 
