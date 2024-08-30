@@ -11,6 +11,8 @@ from dotenv import load_dotenv
 from models import AudioLink
 from utils.salad_transcription import salad_transcription_api
 from utils.search import scrape_website
+import httpx
+import asyncio
 
 load_dotenv()
 app = FastAPI(
@@ -175,16 +177,16 @@ async def image_prompt(user_prompt:str):
     except Exception:
         raise HTTPException(status_code=500, detail="An unexpected error occurred")
 
+
 @app.post("/salad_transcription/")
 async def salad_transcript(audio_link: AudioLink = Body(...)):
     try:
         transcript = await salad_transcription_api(audio_link=audio_link.audio_link)
         return transcript
-    except requests.exceptions.RequestException as e:
+    except httpx.RequestError as e:
         raise HTTPException(status_code=500, detail=f"Error during request: {e}")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An error occurred: {e}")
-
 
 @app.post("/transcribe")
 async def transcribe_voice(file: UploadFile = File(...)):

@@ -3,7 +3,9 @@ from dotenv import load_dotenv
 import requests
 import time
 import json
+import httpx
 from fastapi import HTTPException
+import asyncio
 load_dotenv()
 
 
@@ -15,33 +17,34 @@ async def pabbly_whook(output_data):
  
 async def get_job(job_id):
     organisation_name = os.getenv('ORGANIZATION_NAME')
-    salad_key = os.getenv('SALAD_KEY')    
+    salad_key = os.getenv('SALAD_KEY')
     headers = {
         "Salad-Api-Key": salad_key
     }
     url = f"https://api.salad.com/api/public/organizations/{organisation_name}/inference-endpoints/transcribe/jobs/{job_id}"
+
     while True:
         try:
-            response = requests.get(url, headers=headers)
-            response.raise_for_status()
-            res_json = response.json()
-            
+            async with httpx.AsyncClient() as client:
+                response = await client.get(url, headers=headers)
+                response.raise_for_status()
+                res_json = response.json()
+
             if res_json["status"] == "succeeded":
                 return res_json
             else:
-                time.sleep(3)
-        except requests.exceptions.RequestException as e:
+                await asyncio.sleep(3)  # Non-blocking sleep
+
+        except httpx.RequestError as e:
             print(f"Error during request: {e}")
             break
 
-
 async def salad_transcription_api(audio_link):
     try:
-        organization_name =  os.getenv('ORGANIZATION_NAME')
+        organization_name = os.getenv('ORGANIZATION_NAME')
         url = f"https://api.salad.com/api/public/organizations/{organization_name}/inference-endpoints/transcribe/jobs"
         salad_key = os.getenv('SALAD_KEY')
         language_code = "en"
-        #list_of_audio_files = [audio_link]
 
         headers = {
             "Salad-Api-Key": salad_key,
@@ -49,8 +52,6 @@ async def salad_transcription_api(audio_link):
             "accept": "application/json",
         }
 
-        # for audio_file in list_of_audio_files:
-        #     print("audio file", audio_file)
         data = {
             "input": {
                 "url": audio_link,
@@ -60,20 +61,19 @@ async def salad_transcription_api(audio_link):
                 "srt": False,
             }
         }
-        response = requests.post(url, headers=headers, json=data)
-        
-        #response.raise_for_status()
-        job_id = response.json()["id"]
-        #print("here is job id",job_id)
+
+        async with httpx.AsyncClient() as client:
+            response = await client.post(url, headers=headers, json=data)
+            response.raise_for_status()
+            job_id = response.json()["id"]
 
         get_transcription = await get_job(job_id)
-        if get_transcription:                
-            output_data = {"transcript" : get_transcription['output']['text']}
-            #await pabbly_whook(output_data)
-            return output_data     
-            
-    except requests.exceptions.RequestException as e:
+        if get_transcription:
+            output_data = {"transcript": get_transcription['output']['text']}
+            # await pabbly_whook(output_data)  # Uncomment if needed
+            return output_data
+
+    except httpx.RequestError as e:
         raise HTTPException(status_code=500, detail=f"Error during request: {e}")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An error occurred: {e}")
-
