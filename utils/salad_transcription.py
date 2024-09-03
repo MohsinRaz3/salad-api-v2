@@ -56,7 +56,7 @@ async def salad_transcription_api(audio_link):
             "input": {
                 "url": audio_link,
                 "language_code": language_code,
-                "word_level_timestamps": True,
+                "word_level_timestamps": False,
                 "diarization": False,
                 "srt": False,
             }
@@ -69,10 +69,10 @@ async def salad_transcription_api(audio_link):
 
         get_transcription = await get_job(job_id)
         if get_transcription:
-            print("numbeeeer 1a ", get_transcription)
+            #print("Word level Transcript timestamps", get_transcription)
             user_transcript = get_transcription.get('output', {}).get('text', '')
             output_data = {"transcript": user_transcript}
-            print("numbeeeer 1b ", output_data)
+            print("Transcript ", output_data)
             # await pabbly_whook(output_data)  # Uncomment if needed
             return output_data
 
