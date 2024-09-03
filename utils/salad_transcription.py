@@ -72,7 +72,7 @@ async def salad_transcription_api(audio_link):
             #print("Word level Transcript timestamps", get_transcription)
             user_transcript = get_transcription.get('output', {}).get('text', '')
             output_data = {"transcript": user_transcript}
-            print("Transcript ", output_data)
+            #print("Transcript ", output_data)
             # await pabbly_whook(output_data)  # Uncomment if needed
             return output_data
 

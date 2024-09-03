@@ -195,8 +195,8 @@ async def salad_transcript(audio_link: AudioLink = Body(...)):
 async def create_micro_podcast(audio_link: AudioLink = Body(...)):
     try:
         podcast_call_bucket = await call_bucket(audio_link.audio_link)
-        
         return podcast_call_bucket
+    
     except httpx.RequestError as e:
         raise HTTPException(status_code=500, detail=f"Error during request: {e}")
     except Exception as e:
