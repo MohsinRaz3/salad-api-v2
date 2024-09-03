@@ -9,6 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from b2sdk.v2 import InMemoryAccountInfo, B2Api
 from dotenv import load_dotenv
 from models import AudioLink
+from utils.mpodcast import call_bucket
 from utils.salad_transcription import salad_transcription_api
 from utils.search import scrape_website
 import httpx
@@ -180,12 +181,22 @@ async def image_prompt(user_prompt:str):
 
 @app.post("/salad_transcription/")
 async def salad_transcript(audio_link: AudioLink = Body(...)):
-    print("umbeeera 2a", audio_link.audio_link)
+    #print(" Audio link", audio_link.audio_link)
     try:
         transcript = await salad_transcription_api(audio_link=audio_link.audio_link)
-        print("umbeeera 2b", transcript)
-
+        #print("Transcript", transcript)
         return transcript
+    except httpx.RequestError as e:
+        raise HTTPException(status_code=500, detail=f"Error during request: {e}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"An error occurred: {e}")
+    
+@app.post("/micro_podcast")
+async def create_micro_podcast(audio_link: AudioLink = Body(...)):
+    try:
+        podcast_call_bucket = await call_bucket(audio_link.audio_link)
+        return podcast_call_bucket
+    
     except httpx.RequestError as e:
         raise HTTPException(status_code=500, detail=f"Error during request: {e}")
     except Exception as e:
