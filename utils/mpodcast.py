@@ -16,7 +16,7 @@ from utils.salad_transcription import salad_transcription_api
 load_dotenv()
 
 async def mp_whook(output_data):
-     ap_webhook_url = "https://cloud.activepieces.com/api/v1/webhooks/qoylIPj01YPLaJdAvH4d2/test"
+     ap_webhook_url = "https://cloud.activepieces.com/api/v1/webhooks/qoylIPj01YPLaJdAvH4d2"
      res = requests.post(ap_webhook_url, data=json.dumps(output_data),headers={'Content-Type': 'application/json'})
      return "success"
  

@@ -15,7 +15,7 @@ async def user_response(user_input):
     ]
     )
 
-    print(completion.choices[0].message.content)
+    #print(completion.choices[0].message.content)
     return completion.choices[0].message.content
 
 #user_response("Instagram Is Really Weird Right Now. I Think I've Figured Out Why.")
@@ -40,7 +40,7 @@ async def show_notes(transcript_value):
         return res
 
     except Exception as e:
-        print(f"An unexpected error occurred: {e}")
+        #print(f"An unexpected error occurred: {e}")
         return {"error": str(e)}
     
     
