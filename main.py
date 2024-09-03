@@ -191,11 +191,11 @@ async def salad_transcript(audio_link: AudioLink = Body(...)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An error occurred: {e}")
     
-@app.post("/micro_podcast")
-async def create_micro_podcast(audio_link: AudioLink = Body(...)):
+@app.post("/micro_podcast/")
+async def create_micro_podcast(background_tasks:BackgroundTasks, audio_link: AudioLink = Body(...)):
     try:
-        podcast_call_bucket = await call_bucket(audio_link.audio_link)
-        return podcast_call_bucket
+        background_tasks.add_task(call_bucket,audio_link.audio_link)
+        return {"message": "success"}
     
     except httpx.RequestError as e:
         raise HTTPException(status_code=500, detail=f"Error during request: {e}")
