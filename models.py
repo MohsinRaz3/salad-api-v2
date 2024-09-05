@@ -25,3 +25,9 @@ class FileWrapper(BaseModel):
 
 class AudioLink(BaseModel):
     audio_link: str
+    
+
+class PodcastData(BaseModel):
+    audio_link: str
+    show_notes_prompt: str
+    podcast_script_prompt: str    
