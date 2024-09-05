@@ -11,8 +11,8 @@ from utils.salad_transcription import salad_transcription_api
 client = OpenAI()
 load_dotenv()
 
-async def mp_whook(output_data):
-     ap_webhook_url = ""
+async def mp_whook_v2(output_data):
+     ap_webhook_url = "https://cloud.activepieces.com/api/v1/webhooks/LyZ4Jk6xYubFWhBcGPw82/test"
      res = requests.post(ap_webhook_url, data=json.dumps(output_data),headers={'Content-Type': 'application/json'})
      return "success"
  
@@ -86,5 +86,5 @@ async def call_bucket_v2(audio_link,show_notes_prompt, podcast_script_prompt):
     file_url = await upload_b2_storage(audio_data, file_name, content_type="audio/mpeg")
     #print(f"File uploaded to: {file_url}")
     output_data = {"audio_link":file_url, "show_notes":podcast_show_notes_v2}
-    await mp_whook(output_data)
+    await mp_whook_v2(output_data)
     return output_data
