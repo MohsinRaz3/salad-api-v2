@@ -12,7 +12,7 @@ client = OpenAI()
 load_dotenv()
 
 async def mp_whook_v2(output_data):
-     ap_webhook_url = "https://cloud.activepieces.com/api/v1/webhooks/LyZ4Jk6xYubFWhBcGPw82/test"
+     ap_webhook_url = "https://cloud.activepieces.com/api/v1/webhooks/LyZ4Jk6xYubFWhBcGPw82"
      res = requests.post(ap_webhook_url, data=json.dumps(output_data),headers={'Content-Type': 'application/json'})
      return "success"
  
