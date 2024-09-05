@@ -8,8 +8,9 @@ from fastapi import Body, FastAPI, File, Query, UploadFile, HTTPException,Backgr
 from fastapi.middleware.cors import CORSMiddleware
 from b2sdk.v2 import InMemoryAccountInfo, B2Api
 from dotenv import load_dotenv
-from models import AudioLink
+from models import AudioLink, PodcastData
 from utils.mpodcast import call_bucket
+from utils.mpodcast_v2 import call_bucket_v2
 from utils.salad_transcription import salad_transcription_api
 from utils.search import scrape_website
 import httpx
@@ -192,7 +193,7 @@ async def salad_transcript(audio_link: AudioLink = Body(...)):
         raise HTTPException(status_code=500, detail=f"An error occurred: {e}")
     
 @app.post("/micro_podcast/")
-async def create_micro_podcast(background_tasks:BackgroundTasks, audio_link: AudioLink = Body(...)):
+async def create_micro_podcast(background_tasks:BackgroundTasks, audio_link: AudioLink = Body(...))-> dict:
     try:
         background_tasks.add_task(call_bucket,audio_link.audio_link)
         return {"message": "success"}
@@ -201,6 +202,23 @@ async def create_micro_podcast(background_tasks:BackgroundTasks, audio_link: Aud
         raise HTTPException(status_code=500, detail=f"Error during request: {e}")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An error occurred: {e}")
+
+  
+@app.post("/micro_podcast_v2/")
+async def create_micro_podcast_v2(background_tasks:BackgroundTasks, podcast_data: PodcastData = Body(...)):
+    try:
+        #print("audio link", podcast_data.audio_link)
+        #print("show notes prompt", podcast_data.show_notes_prompt)
+       #print("podcast script prompt", podcast_data.show_notes_prompt)
+        
+        background_tasks.add_task(call_bucket_v2,podcast_data.audio_link, podcast_data.show_notes_prompt, podcast_data.podcast_script_prompt)
+        return {"message": "success"}
+    
+    except httpx.RequestError as e:
+        raise HTTPException(status_code=500, detail=f"Error during request: {e}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"An error occurred: {e}")
+
 
 @app.post("/transcribe")
 async def transcribe_voice(file: UploadFile = File(...)):
