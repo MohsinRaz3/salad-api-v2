@@ -31,3 +31,9 @@ class PodcastData(BaseModel):
     audio_link: str
     show_notes_prompt: str
     podcast_script_prompt: str    
+    
+    
+class PodcastTextData(BaseModel):
+    podcast_text: str
+    show_notes_prompt: str
+    podcast_script_prompt: str 
