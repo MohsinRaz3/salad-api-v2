@@ -86,8 +86,6 @@ async def call_bucket_v2(voice_name,audio_link,show_notes_prompt, podcast_script
 
 async def call_bucket_text_v2(voice_name,podcast_text,show_notes_prompt, podcast_script_prompt):
     """ Takes Typebot podcast text; returns Show Notes and Dan's cloned voice Podcast .mp3 Link"""
-    print("voice name 2", voice_name)
-
     transcript_value = podcast_text
     
     #### Show_Notes ####
@@ -97,7 +95,6 @@ async def call_bucket_text_v2(voice_name,podcast_text,show_notes_prompt, podcast
     created_posdcast_script_v2 = await create_podcast_script_v2(transcript_value,podcast_script_prompt)
     
     voice_id = get_voice_id_by_name(voice_name)
-    print("voice name id 3", voice_id)
 
     audio_data = await text_to_speech_file(created_posdcast_script_v2,voice_id=voice_id)
     file_name = f"RT{uuid.uuid4()}.mp3"

@@ -38,7 +38,6 @@ async def text_to_speech_file(text: str, voice_id: str="HRtOQGUGcbYfuAAouyYR") -
             use_speaker_boost=False,
         ),
     )
-    print("voice name id 4", voice_id)
 
     audio_data = io.BytesIO()
     for chunk in response:
