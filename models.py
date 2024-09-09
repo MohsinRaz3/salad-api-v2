@@ -28,12 +28,14 @@ class AudioLink(BaseModel):
     
 
 class PodcastData(BaseModel):
+    voice_name: str
     audio_link: str
     show_notes_prompt: str
     podcast_script_prompt: str    
     
     
 class PodcastTextData(BaseModel):
+    voice_name: str
     podcast_text: str
     show_notes_prompt: str
     podcast_script_prompt: str 
