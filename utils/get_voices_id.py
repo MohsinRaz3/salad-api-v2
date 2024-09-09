@@ -1,5 +1,6 @@
 voices_id_list = [
   {"name": "Sarah", "id": "EXAVITQu4vr4xnSDxMaL"},
+  {"name": "Dan", "id": "HRtOQGUGcbYfuAAouyYR"},
   {"name": "Laura", "id": "FGY2WhTYpPnrIDTdsKH5"},
   {"name": "Charlie", "id": "IKne3meq5aSn9XLyUdCD"},
   {"name": "George", "id": "JBFqnCBsd6RMkjVDRZzb"},

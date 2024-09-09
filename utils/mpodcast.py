@@ -24,7 +24,8 @@ async def mp_whook(output_data):
 ELEVENLABS_API_KEY = os.getenv("ELEVENLABS_API_KEY")
 client = ElevenLabs(api_key=ELEVENLABS_API_KEY)
 
-async def text_to_speech_file(text: str, voice_id: str ="HRtOQGUGcbYfuAAouyYR") -> io.BytesIO:
+async def text_to_speech_file(text: str, voice_id: str="HRtOQGUGcbYfuAAouyYR") -> io.BytesIO:
+    
     response = client.text_to_speech.convert(
         voice_id=voice_id,  # Default is Dan's voice
         output_format="mp3_22050_32",
@@ -37,6 +38,7 @@ async def text_to_speech_file(text: str, voice_id: str ="HRtOQGUGcbYfuAAouyYR") 
             use_speaker_boost=False,
         ),
     )
+    print("voice name id 4", voice_id)
 
     audio_data = io.BytesIO()
     for chunk in response:
