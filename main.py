@@ -6,9 +6,9 @@ from fastapi import Body, FastAPI, File, Query, UploadFile, HTTPException,Backgr
 from fastapi.middleware.cors import CORSMiddleware
 from b2sdk.v2 import InMemoryAccountInfo, B2Api
 from dotenv import load_dotenv
-from models import AudioLink, PodcastData
+from models import AudioLink, PodcastData, PodcastTextData
 from utils.mpodcast import call_bucket
-from utils.mpodcast_v2 import call_bucket_v2
+from utils.mpodcast_v2 import call_bucket_text_v2, call_bucket_v2
 from utils.salad_transcription import salad_transcription_api
 from utils.search import scrape_website
 import httpx
@@ -222,6 +222,26 @@ async def create_micro_podcast_v2(podcast_data: PodcastData = Body(...))->dict:
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An error occurred: {e}")
 
+
+@app.post("/micro_podcast_text_v2/")
+async def create_micro_podcast_text_v2(podcast_data: PodcastTextData = Body(...))->dict:
+    try:
+        print("podcast text", podcast_data.podcast_text)
+        print("show notes prompt", podcast_data.show_notes_prompt)
+        print("podcast script prompt", podcast_data.show_notes_prompt)
+        
+        # Await the asynchronous function and return its result
+        result = await call_bucket_text_v2(
+            podcast_data.podcast_text, 
+            podcast_data.show_notes_prompt, 
+            podcast_data.podcast_script_prompt
+        )    
+        return {"message": "success", "result": result}
+    
+    except httpx.RequestError as e:
+        raise HTTPException(status_code=500, detail=f"Error during request: {e}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"An error occurred: {e}")
 
 @app.post("/transcribe")
 async def transcribe_voice(file: UploadFile = File(...)):

@@ -88,3 +88,25 @@ async def call_bucket_v2(audio_link,show_notes_prompt, podcast_script_prompt):
     output_data = {"audio_link":file_url, "show_notes":podcast_show_notes_v2}
     await mp_whook_v2(output_data)
     return output_data
+
+async def call_bucket_text_v2(podcast_text,show_notes_prompt, podcast_script_prompt):
+    """ Takes Typebot podcast text; returns Show Notes and Dan's cloned voice Podcast .mp3 Link"""
+    
+    transcript_value = podcast_text
+    
+    #### Show_Notes ####
+    podcast_show_notes_v2 = await show_notes_v2(transcript_value,show_notes_prompt)
+    #print("podcast_show_notes", podcast_show_notes)
+    
+    #### Posdcast_Script_text #####
+    created_posdcast_script_v2 = await create_podcast_script_v2(transcript_value,podcast_script_prompt)
+    #print("created_posdcast_script", created_posdcast_script)
+    
+    audio_data = await text_to_speech_file(created_posdcast_script_v2)
+    file_name = f"RT{uuid.uuid4()}.mp3"
+    file_url = await upload_b2_storage(audio_data, file_name, content_type="audio/mpeg")
+    #print(f"File uploaded to: {file_url}")
+    output_data = {"audio_link":file_url, "show_notes":podcast_show_notes_v2}
+    await mp_whook_v2(output_data)
+    return output_data
+
