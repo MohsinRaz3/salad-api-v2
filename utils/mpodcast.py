@@ -24,9 +24,9 @@ async def mp_whook(output_data):
 ELEVENLABS_API_KEY = os.getenv("ELEVENLABS_API_KEY")
 client = ElevenLabs(api_key=ELEVENLABS_API_KEY)
 
-async def text_to_speech_file(text: str) -> io.BytesIO:
+async def text_to_speech_file(text: str, voice_id: str ="HRtOQGUGcbYfuAAouyYR") -> io.BytesIO:
     response = client.text_to_speech.convert(
-        voice_id=os.getenv("VOICE_ID"),  # Dan's voice
+        voice_id=voice_id,  # Default is Dan's voice
         output_format="mp3_22050_32",
         text=text,
         model_id="eleven_turbo_v2_5",  # Use the turbo model for low latency

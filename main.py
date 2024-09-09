@@ -204,12 +204,14 @@ async def create_micro_podcast(background_tasks:BackgroundTasks, audio_link: Aud
 @app.post("/micro_podcast_v2/")
 async def create_micro_podcast_v2(podcast_data: PodcastData = Body(...))->dict:
     try:
+        print("voice name", podcast_data.voice_name)
         print("audio link", podcast_data.audio_link)
         print("show notes prompt", podcast_data.show_notes_prompt)
         print("podcast script prompt", podcast_data.show_notes_prompt)
         
         # Await the asynchronous function and return its result
         result = await call_bucket_v2(
+            podcast_data.voice_name,
             podcast_data.audio_link, 
             podcast_data.show_notes_prompt, 
             podcast_data.podcast_script_prompt
@@ -232,6 +234,7 @@ async def create_micro_podcast_text_v2(podcast_data: PodcastTextData = Body(...)
         
         # Await the asynchronous function and return its result
         result = await call_bucket_text_v2(
+            podcast_data.voice_name,
             podcast_data.podcast_text, 
             podcast_data.show_notes_prompt, 
             podcast_data.podcast_script_prompt
