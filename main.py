@@ -235,15 +235,13 @@ async def create_micro_podcast_text_v2(podcast_data: PodcastTextData = Body(...)
             podcast_data.podcast_text, 
             podcast_data.show_notes_prompt, 
             podcast_data.podcast_script_prompt
-        )
-        
+        )    
         return {"message": "success", "result": result}
     
     except httpx.RequestError as e:
         raise HTTPException(status_code=500, detail=f"Error during request: {e}")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An error occurred: {e}")
-
 
 @app.post("/transcribe")
 async def transcribe_voice(file: UploadFile = File(...)):
