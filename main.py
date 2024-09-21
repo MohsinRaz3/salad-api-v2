@@ -176,6 +176,16 @@ async def image_prompt(user_prompt:str):
     except Exception:
         raise HTTPException(status_code=500, detail="An unexpected error occurred")
 
+@app.post("/flux_prompt/{user_prompt}")
+async def flux_typebot(user_prompt:str):
+    try:
+        img_url = await submit(user_prompt) 
+        return {"image_url": img_url}
+    except HTTPException as e:
+        raise e
+    except Exception:
+        raise HTTPException(status_code=500, detail="An unexpected error occurred")
+
 
 @app.post("/salad_transcription/")
 async def salad_transcript(audio_link: AudioLink = Body(...)):
