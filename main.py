@@ -215,6 +215,8 @@ async def create_micro_podcast(background_tasks:BackgroundTasks, audio_link: Aud
 async def create_micro_podcast_v2(podcast_data: PodcastData = Body(...))->dict:
     try: 
         result = await call_bucket_v2(
+            podcast_data.user_name,
+            podcast_data.email_podcast,
             podcast_data.voice_name,
             podcast_data.audio_link, 
             podcast_data.show_notes_prompt, 
@@ -232,6 +234,8 @@ async def create_micro_podcast_v2(podcast_data: PodcastData = Body(...))->dict:
 async def create_micro_podcast_text_v2(podcast_data: PodcastTextData = Body(...))->dict:
     try:
         result = await call_bucket_text_v2(
+            podcast_data.user_name,
+            podcast_data.email_podcast,
             podcast_data.voice_name,
             podcast_data.podcast_text, 
             podcast_data.show_notes_prompt, 

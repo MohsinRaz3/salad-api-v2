@@ -63,7 +63,7 @@ async def create_podcast_script_v2(transcript_value,podcast_script_prompt):
   
 
 
-async def call_bucket_v2(voice_name,audio_link,show_notes_prompt, podcast_script_prompt):
+async def call_bucket_v2(user_name,email_podcast, voice_name,audio_link,show_notes_prompt, podcast_script_prompt):
     """ Takes Typebot audio link; returns Show Notes and Dan's cloned voice Podcast .mp3 Link"""
     transcript_data = await salad_transcription_api(audio_link=audio_link)
     
@@ -80,11 +80,11 @@ async def call_bucket_v2(voice_name,audio_link,show_notes_prompt, podcast_script
     file_name = f"RT{uuid.uuid4()}.mp3"
     
     file_url = await upload_b2_storage(audio_data, file_name, content_type="audio/mpeg")
-    output_data = {"audio_link":file_url, "show_notes":podcast_show_notes_v2}
+    output_data = {"audio_link":file_url, "show_notes":podcast_show_notes_v2, "user_name": user_name, "podcast_email": email_podcast}
     await mp_whook_v2(output_data)
     return output_data
 
-async def call_bucket_text_v2(voice_name,podcast_text,show_notes_prompt, podcast_script_prompt):
+async def call_bucket_text_v2(user_name,email_podcast,voice_name,podcast_text,show_notes_prompt, podcast_script_prompt):
     """ Takes Typebot podcast text; returns Show Notes and Dan's cloned voice Podcast .mp3 Link"""
     transcript_value = podcast_text
     
@@ -100,7 +100,7 @@ async def call_bucket_text_v2(voice_name,podcast_text,show_notes_prompt, podcast
     file_name = f"RT{uuid.uuid4()}.mp3"
     file_url = await upload_b2_storage(audio_data, file_name, content_type="audio/mpeg")
 
-    output_data = {"audio_link":file_url, "show_notes":podcast_show_notes_v2}
+    output_data = {"audio_link":file_url, "show_notes":podcast_show_notes_v2,  "user_name": user_name, "podcast_email": email_podcast}
     await mp_whook_v2(output_data)
     return output_data
 
