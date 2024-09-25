@@ -1,4 +1,4 @@
-from typing import Any, Tuple
+from typing import Any, Tuple, Optional
 from pydantic import BaseModel, validator, Field
 
 class FileWrapper(BaseModel):
@@ -28,6 +28,8 @@ class AudioLink(BaseModel):
     
 
 class PodcastData(BaseModel):
+    user_name: Optional[str] = None
+    podcast_email: Optional[str] = None
     voice_name: str
     audio_link: str
     show_notes_prompt: str
@@ -35,6 +37,8 @@ class PodcastData(BaseModel):
     
     
 class PodcastTextData(BaseModel):
+    user_name: Optional[str] = None
+    podcast_email: Optional[str] = None
     voice_name: str
     podcast_text: str
     show_notes_prompt: str
