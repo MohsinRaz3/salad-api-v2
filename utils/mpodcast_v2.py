@@ -85,7 +85,7 @@ async def call_bucket_v2(user_name,podcast_email, voice_name,audio_link,show_not
     return output_data
 
 async def call_bucket_text_v2(user_name,podcast_email,voice_name,podcast_text,show_notes_prompt, podcast_script_prompt):
-    """ Takes Typebot podcast text; returns Show Notes and Dan's cloned voice Podcast .mp3 Link"""
+    """ Takes Typebot podcast text; returns Show Notes and any cloned voice Podcast .mp3 Link"""
     transcript_value = podcast_text
     
     #### Show_Notes ####
@@ -102,5 +102,17 @@ async def call_bucket_text_v2(user_name,podcast_email,voice_name,podcast_text,sh
 
     output_data = {"audio_link":file_url, "show_notes":podcast_show_notes_v2,  "user_name": user_name, "podcast_email": podcast_email}
     await mp_whook_v2(output_data)
+    return output_data
+
+
+async def call_elevenlabs(text_data):
+    """ Takes text; returns elevenlabs voice backblaze .mp3 Link"""
+    voice_id = "HRtOQGUGcbYfuAAouyYR"
+
+    audio_data = await text_to_speech_file(text_data,voice_id=voice_id)
+    file_name = f"RT{uuid.uuid4()}.mp3"
+    file_url = await upload_b2_storage(audio_data, file_name, content_type="audio/mpeg")
+
+    output_data = {"audio_link":file_url}
     return output_data
 
