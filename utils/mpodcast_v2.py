@@ -85,7 +85,7 @@ async def call_bucket_v2(user_name,podcast_email, voice_name,audio_link,show_not
     return output_data
 
 async def call_bucket_text_v2(user_name,podcast_email,voice_name,podcast_text,show_notes_prompt, podcast_script_prompt):
-    """ Takes Typebot podcast text; returns Show Notes and Dan's cloned voice Podcast .mp3 Link"""
+    """ Takes Typebot podcast text; returns Show Notes and any cloned voice Podcast .mp3 Link"""
     transcript_value = podcast_text
     
     #### Show_Notes ####

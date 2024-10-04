@@ -73,7 +73,7 @@ async def webhook_ap(output_data):
 async def submit(user_prompt: str):
     try:
         handler = await fal_client.submit_async(
-            "fal-ai/flux-pro",
+            "fal-ai/flux-pro/v1.1",
             arguments={"prompt": user_prompt},
         )
 
@@ -152,8 +152,9 @@ async def upload_b2_storage(file: UploadFile):
 async def home_notes():
     return {"message": "RocketTools Home!"}
 
-@app.post("/scrapeowl")
+@app.post("/scrapeowl", tags=["Scrapping"])
 async def serpapi_keyword( background_tasks:BackgroundTasks, query: str = Body(..., embed=True)):
+    """Turns query into keywords, searches and create blogs"""
     try:  
         print("User query:", query)
         background_tasks.add_task(scrape_website, query)
@@ -165,8 +166,9 @@ async def serpapi_keyword( background_tasks:BackgroundTasks, query: str = Body(.
         print(f"An unexpected error occurred: {e}")
         raise HTTPException(status_code=500, detail="An unexpected error occurred")
 
-@app.post("/prompt/{user_prompt}")
+@app.post("/prompt/{user_prompt}", tags=["Fluxai"])
 async def image_prompt(user_prompt:str):
+    """Turn text into Fluxai Image, sends to APs"""
     try:
         img_url = await submit(user_prompt) 
         await img_webhook_ap(img_url)
@@ -176,8 +178,10 @@ async def image_prompt(user_prompt:str):
     except Exception:
         raise HTTPException(status_code=500, detail="An unexpected error occurred")
 
-@app.post("/flux_prompt/{user_prompt}")
+@app.post("/flux_prompt/{user_prompt}", tags=["Fluxai"])
 async def flux_typebot(user_prompt:str):
+    """Turn text into Fluxai Image only"""
+
     try:
         img_url = await submit(user_prompt) 
         return {"image_url": img_url}
@@ -187,8 +191,9 @@ async def flux_typebot(user_prompt:str):
         raise HTTPException(status_code=500, detail="An unexpected error occurred")
 
 
-@app.post("/salad_transcription/")
+@app.post("/salad_transcription/", tags=["Salad Trasncription API"])
 async def salad_transcript(audio_link: AudioLink = Body(...)):
+    """Turns audio file into text only"""
     #print(" Audio link", audio_link.audio_link)
     try:
         transcript = await salad_transcription_api(audio_link=audio_link.audio_link)
@@ -199,8 +204,10 @@ async def salad_transcript(audio_link: AudioLink = Body(...)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An error occurred: {e}")
     
-@app.post("/micro_podcast/")
+@app.post("/micro_podcast/", tags=["Podcast"])
 async def create_micro_podcast(background_tasks:BackgroundTasks, audio_link: AudioLink = Body(...)):
+    """Takes audio file and creates audio podcast with shownotes, sends to AP"""
+
     try:
         background_tasks.add_task(call_bucket,audio_link.audio_link)
         return {"message": "success"}
@@ -211,8 +218,9 @@ async def create_micro_podcast(background_tasks:BackgroundTasks, audio_link: Aud
         raise HTTPException(status_code=500, detail=f"An error occurred: {e}")
 
   
-@app.post("/micro_podcast_v2/")
+@app.post("/micro_podcast_v2/", tags=["Podcast"])
 async def create_micro_podcast_v2(podcast_data: PodcastData = Body(...))->dict:
+    """Takes audio file and creates audio podcast with shownotes"""
     try: 
         result = await call_bucket_v2(
             podcast_data.user_name,
@@ -232,6 +240,8 @@ async def create_micro_podcast_v2(podcast_data: PodcastData = Body(...))->dict:
 
 @app.post("/micro_podcast_text_v2/")
 async def create_micro_podcast_text_v2(podcast_data: PodcastTextData = Body(...))->dict:
+    """Takes Text and creates audio podcast with shownotes. sends AP"""
+
     try:
         result = await call_bucket_text_v2(
             podcast_data.user_name,
@@ -248,8 +258,10 @@ async def create_micro_podcast_text_v2(podcast_data: PodcastTextData = Body(...)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An error occurred: {e}")
 
-@app.post("/transcribe")
+@app.post("/transcribe", tags=["Salad Trasncription API"])
 async def transcribe_voice(file: UploadFile = File(...)):
+    """Takes audio file and creates transcription, sends to AP"""
+
     try:
         # Upload file to B2 storage
         b2_file_url = await upload_b2_storage(file)
