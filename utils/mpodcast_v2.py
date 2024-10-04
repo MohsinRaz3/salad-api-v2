@@ -104,3 +104,15 @@ async def call_bucket_text_v2(user_name,podcast_email,voice_name,podcast_text,sh
     await mp_whook_v2(output_data)
     return output_data
 
+
+async def call_elevenlabs(text_data):
+    """ Takes text; returns elevenlabs voice backblaze .mp3 Link"""
+    voice_id = "HRtOQGUGcbYfuAAouyYR"
+
+    audio_data = await text_to_speech_file(text_data,voice_id=voice_id)
+    file_name = f"RT{uuid.uuid4()}.mp3"
+    file_url = await upload_b2_storage(audio_data, file_name, content_type="audio/mpeg")
+
+    output_data = {"audio_link":file_url}
+    return output_data
+

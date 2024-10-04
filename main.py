@@ -6,9 +6,9 @@ from fastapi import Body, FastAPI, File, Query, UploadFile, HTTPException,Backgr
 from fastapi.middleware.cors import CORSMiddleware
 from b2sdk.v2 import InMemoryAccountInfo, B2Api
 from dotenv import load_dotenv
-from models import AudioLink, PodcastData, PodcastTextData
+from models import AudioLink, PodcastData, PodcastTextData, TextData
 from utils.mpodcast import call_bucket
-from utils.mpodcast_v2 import call_bucket_text_v2, call_bucket_v2
+from utils.mpodcast_v2 import call_bucket_text_v2, call_bucket_v2, call_elevenlabs
 from utils.salad_transcription import salad_transcription_api
 from utils.search import scrape_website
 import httpx
@@ -154,7 +154,7 @@ async def home_notes():
 
 @app.post("/scrapeowl", tags=["Scrapping"])
 async def serpapi_keyword( background_tasks:BackgroundTasks, query: str = Body(..., embed=True)):
-    """Turns query into keywords, searches and create blogs"""
+    """Turns query into keywords, searches and create blogs, sends to AP"""
     try:  
         print("User query:", query)
         background_tasks.add_task(scrape_website, query)
@@ -238,7 +238,7 @@ async def create_micro_podcast_v2(podcast_data: PodcastData = Body(...))->dict:
         raise HTTPException(status_code=500, detail=f"An error occurred: {e}")
 
 
-@app.post("/micro_podcast_text_v2/")
+@app.post("/micro_podcast_text_v2/", tags=["Podcast"])
 async def create_micro_podcast_text_v2(podcast_data: PodcastTextData = Body(...))->dict:
     """Takes Text and creates audio podcast with shownotes. sends AP"""
 
@@ -250,6 +250,20 @@ async def create_micro_podcast_text_v2(podcast_data: PodcastTextData = Body(...)
             podcast_data.podcast_text, 
             podcast_data.show_notes_prompt, 
             podcast_data.podcast_script_prompt
+        )    
+        return {"message": "success", "result": result}
+    
+    except httpx.RequestError as e:
+        raise HTTPException(status_code=500, detail=f"Error during request: {e}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"An error occurred: {e}")
+
+@app.post("/text_to_elevenlabs_voice/", tags=["Elevenlabs"])
+async def create_text_to_elevenlabs_voice(text_data: TextData = Body(...))->dict:
+    """Takes Text and creates audio """
+    try:
+        result = await call_elevenlabs(
+            text_data.text_data
         )    
         return {"message": "success", "result": result}
     

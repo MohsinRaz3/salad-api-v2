@@ -43,3 +43,6 @@ class PodcastTextData(BaseModel):
     podcast_text: str
     show_notes_prompt: str
     podcast_script_prompt: str 
+
+class TextData(BaseModel):
+    text_data: str
