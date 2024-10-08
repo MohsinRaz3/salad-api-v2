@@ -12,6 +12,9 @@ from utils.mpodcast_v2 import call_bucket_text_v2, call_bucket_v2, call_elevenla
 from utils.salad_transcription import salad_transcription_api
 from utils.search import scrape_website
 import httpx
+from typing import Any
+
+from utils.vapillm import vapi_chat_completion
 
 load_dotenv()
 app = FastAPI(
@@ -271,6 +274,12 @@ async def create_text_to_elevenlabs_voice(text_data: TextData = Body(...))->dict
         raise HTTPException(status_code=500, detail=f"Error during request: {e}")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An error occurred: {e}")
+
+
+@app.post("/chat/completions")
+async def vapi_custom_llm(request: str):
+    vapi_result = await vapi_chat_completion(request)
+    return vapi_result
 
 @app.post("/transcribe", tags=["Salad Trasncription API"])
 async def transcribe_voice(file: UploadFile = File(...)):
