@@ -46,3 +46,9 @@ class PodcastTextData(BaseModel):
 
 class TextData(BaseModel):
     text_data: str
+    
+class ChatRequest(BaseModel):
+    model: str
+    messages: list
+    stream: bool = False
+    
