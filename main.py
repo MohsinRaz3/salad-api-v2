@@ -287,27 +287,18 @@ async def create_text_to_elevenlabs_voice(text_data: TextData = Body(...))->dict
 def generate_streaming_response(data) -> Generator:
     for message in data:
         json_data = message.model_dump_json()
-        # logger.info(f"JSON data: {json.dumps(json_data, indent=2)}")
         yield f"data: {json_data}\n\n"
-
 
 @app.post("/chat/completions")
 async def openai_advanced_custom_llm_route(request: Request):
-    # Parse the incoming request as JSON
     request_data = await request.json()
-    # Log the request data
-    # logger.info(f"Request data: {json.dumps(request_data, indent=2)}")
 
-    # Get the 'stream' flag from the request, default to False if not provided
     streaming = request_data.get('stream', False)
-
-    # Remove fields 'call' and 'metadata' from the request (if present)
     request_data.pop('call', None)
     request_data.pop('metadata', None)
 
     try:
         if streaming:
-            # Call OpenAI API with streaming enabled
             chat_completion_stream = client.chat.completions.create(**request_data)
 
             return StreamingResponse(
@@ -315,12 +306,10 @@ async def openai_advanced_custom_llm_route(request: Request):
                 media_type='text/event-stream'
             )
         else:
-            # Non-streaming API call
             chat_completion = client.chat.completions.create(**request_data)
             return JSONResponse(content=chat_completion.model_dump_json())
 
     except Exception as e:
-        # logger.error(f"Error in OpenAI API call: {str(e)}")
         return JSONResponse(content={"error": str(e)}, status_code=500)
 
 
