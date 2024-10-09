@@ -14,7 +14,7 @@ from utils.search import scrape_website
 import httpx
 from typing import Any
 
-from utils.vapillm import vapi_chat_completion
+from utils.vapillm import openai_advanced_custom_llm_route
 
 load_dotenv()
 app = FastAPI(
@@ -278,7 +278,7 @@ async def create_text_to_elevenlabs_voice(text_data: TextData = Body(...))->dict
 
 @app.post("/chat/completions")
 async def vapi_custom_llm(request: str):
-    vapi_result = await vapi_chat_completion(request)
+    vapi_result = await openai_advanced_custom_llm_route(request)
     return vapi_result
 
 @app.post("/transcribe", tags=["Salad Trasncription API"])
