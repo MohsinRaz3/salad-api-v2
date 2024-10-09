@@ -2,7 +2,7 @@ import os
 import time
 import requests, json
 import fal_client
-from fastapi import Body, FastAPI, File, Query, UploadFile, HTTPException,BackgroundTasks
+from fastapi import Body, FastAPI, File, Query, UploadFile, HTTPException,BackgroundTasks, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from b2sdk.v2 import InMemoryAccountInfo, B2Api
 from dotenv import load_dotenv
@@ -12,9 +12,12 @@ from utils.mpodcast_v2 import call_bucket_text_v2, call_bucket_v2, call_elevenla
 from utils.salad_transcription import salad_transcription_api
 from utils.search import scrape_website
 import httpx
-from typing import Any
+from openai import OpenAI
+from typing import Generator
+from fastapi.responses import StreamingResponse, JSONResponse
 
-from utils.vapillm import openai_advanced_custom_llm_route
+
+
 
 load_dotenv()
 app = FastAPI(
@@ -61,6 +64,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+
 FAL_API_KEY = os.getenv('FAL_API')
 
 async def img_webhook_ap(output_data):
@@ -276,10 +283,46 @@ async def create_text_to_elevenlabs_voice(text_data: TextData = Body(...))->dict
         raise HTTPException(status_code=500, detail=f"An error occurred: {e}")
 
 
+# Function to generate streaming responses
+def generate_streaming_response(data) -> Generator:
+    for message in data:
+        json_data = message.model_dump_json()
+        # logger.info(f"JSON data: {json.dumps(json_data, indent=2)}")
+        yield f"data: {json_data}\n\n"
+
+
 @app.post("/chat/completions")
-async def vapi_custom_llm(request: str):
-    vapi_result = await openai_advanced_custom_llm_route(request)
-    return vapi_result
+async def openai_advanced_custom_llm_route(request: Request):
+    # Parse the incoming request as JSON
+    request_data = await request.json()
+    # Log the request data
+    # logger.info(f"Request data: {json.dumps(request_data, indent=2)}")
+
+    # Get the 'stream' flag from the request, default to False if not provided
+    streaming = request_data.get('stream', False)
+
+    # Remove fields 'call' and 'metadata' from the request (if present)
+    request_data.pop('call', None)
+    request_data.pop('metadata', None)
+
+    try:
+        if streaming:
+            # Call OpenAI API with streaming enabled
+            chat_completion_stream = client.chat.completions.create(**request_data)
+
+            return StreamingResponse(
+                generate_streaming_response(chat_completion_stream),
+                media_type='text/event-stream'
+            )
+        else:
+            # Non-streaming API call
+            chat_completion = client.chat.completions.create(**request_data)
+            return JSONResponse(content=chat_completion.model_dump_json())
+
+    except Exception as e:
+        # logger.error(f"Error in OpenAI API call: {str(e)}")
+        return JSONResponse(content={"error": str(e)}, status_code=500)
+
 
 @app.post("/transcribe", tags=["Salad Trasncription API"])
 async def transcribe_voice(file: UploadFile = File(...)):
