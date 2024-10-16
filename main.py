@@ -66,7 +66,6 @@ app.add_middleware(
 
 
 client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
-
 FAL_API_KEY = os.getenv('FAL_API')
 
 async def img_webhook_ap(output_data):
@@ -287,10 +286,6 @@ async def create_text_to_elevenlabs_voice(text_data: TextData = Body(...))->dict
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-app = FastAPI()
-
-client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
-
 PROMPT_INDEX_FILE = 'prompt_indices.json'
 PATHWAYS_MESSAGES_FILE = 'pathways.json'
 
@@ -364,7 +359,7 @@ async def openai_advanced_custom_llm_route(request: Request):
 
         # OpenAI chat completion request
         completion = client.chat.completions.create(
-            model="gpt-3.5-turbo",
+            model="gpt-4o-mini-2024-07-18",
             messages=prompt_completion_messages,
             max_tokens=10,
             temperature=0.7
