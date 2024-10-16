@@ -13,9 +13,8 @@ from utils.salad_transcription import salad_transcription_api
 from utils.search import scrape_website
 import httpx
 from openai import OpenAI
-from typing import Generator
 from fastapi.responses import StreamingResponse, JSONResponse
-
+import logging
 
 
 
@@ -67,7 +66,6 @@ app.add_middleware(
 
 
 client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
-
 FAL_API_KEY = os.getenv('FAL_API')
 
 async def img_webhook_ap(output_data):
@@ -283,8 +281,43 @@ async def create_text_to_elevenlabs_voice(text_data: TextData = Body(...))->dict
         raise HTTPException(status_code=500, detail=f"An error occurred: {e}")
 
 
-# Function to generate streaming responses
-def generate_streaming_response(data) -> Generator:
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+PROMPT_INDEX_FILE = 'prompt_indices.json'
+PATHWAYS_MESSAGES_FILE = 'pathways.json'
+
+# Ensure the JSON file exists
+if not os.path.exists(PROMPT_INDEX_FILE):
+    with open(PROMPT_INDEX_FILE, 'w') as f:
+        json.dump({}, f)
+
+# Load the prompt messages
+with open(PATHWAYS_MESSAGES_FILE, 'r') as f:
+    prompt_messages = json.load(f)
+
+
+def get_prompt_index(call_id, increment=True):
+    with open(PROMPT_INDEX_FILE, 'r') as f:
+        indices = json.load(f)
+
+    index = indices.get(call_id, 0)
+
+    if increment:
+        indices[call_id] = index + 1 if index + 1 < len(prompt_messages) else 0
+
+    with open(PROMPT_INDEX_FILE, 'w') as f:
+        json.dump(indices, f)
+
+    return index
+
+
+def generate_streaming_response(data):
+    """
+    Generator function to simulate streaming data.
+    """
     for message in data:
         json_data = message.model_dump_json()
         yield f"data: {json_data}\n\n"
@@ -293,23 +326,87 @@ def generate_streaming_response(data) -> Generator:
 async def openai_advanced_custom_llm_route(request: Request):
     request_data = await request.json()
 
-    streaming = request_data.get('stream', False)
+    next_prompt = ''
+    call_id = request_data['call']['id']
+    prompt_index = get_prompt_index(call_id, False)
+
+    last_assistant_message = ''
+    if 'messages' in request_data and len(request_data['messages']) >= 2:
+        last_assistant_message = request_data['messages'][-2]
+
+    last_message = request_data['messages'][-1]
+    pathway_prompt = prompt_messages[prompt_index]
+
+    # Check if there are specific conditions for classification
+    if 'check' in pathway_prompt and pathway_prompt['check']:
+        prompt = f"""
+        You're an AI classifier. Your goal is to classify the following condition/instructions based on the last user message. 
+        If the condition is met, you only answer with a lowercase 'yes', and if it was not met, you answer with a lowercase 'no' (No Markdown or punctuation).
+        ----------
+        Conditions/Instructions: {pathway_prompt['check']}"""
+
+        if last_assistant_message:
+            prompt_completion_messages = [
+                {"role": "system", "content": prompt},
+                {"role": "assistant", "content": last_assistant_message['content']},
+                {"role": "user", "content": last_message['content']}
+            ]
+        else:
+            prompt_completion_messages = [
+                {"role": "system", "content": prompt},
+                {"role": "user", "content": last_message['content']}
+            ]
+
+        # OpenAI chat completion request
+        completion = client.chat.completions.create(
+            model="gpt-4o-mini-2024-07-18",
+            messages=prompt_completion_messages,
+            max_tokens=10,
+            temperature=0.7
+        )
+
+        # Classify based on response
+        if completion.choices[0].message.content == 'yes':
+            prompt_index = get_prompt_index(call_id)
+            next_prompt = pathway_prompt['next']
+        else:
+            next_prompt = pathway_prompt['error']
+    else:
+        # No conditions, proceed to the next state
+        prompt_index = get_prompt_index(call_id)
+        next_prompt = pathway_prompt['next']
+
+    # Modify the request with new prompt
+    modified_messages = [
+        {"role": "system", "content": next_prompt},
+        {"role": "user", "content": last_message['content']}
+    ]
+
+    request_data['messages'] = modified_messages
+
+    # Clean up unnecessary fields from the request
     request_data.pop('call', None)
     request_data.pop('metadata', None)
+    request_data.pop('phoneNumber', None)
+    request_data.pop('customer', None)
 
     try:
+        streaming = request_data.get('stream', False)
+
+        # If streaming, handle response generation via streaming
         if streaming:
             chat_completion_stream = client.chat.completions.create(**request_data)
-
             return StreamingResponse(
                 generate_streaming_response(chat_completion_stream),
                 media_type='text/event-stream'
             )
         else:
+            # Handle non-streaming response
             chat_completion = client.chat.completions.create(**request_data)
             return JSONResponse(content=chat_completion.model_dump_json())
 
     except Exception as e:
+        # Handle errors
         return JSONResponse(content={"error": str(e)}, status_code=500)
 
 
