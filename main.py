@@ -397,6 +397,8 @@ async def openai_advanced_custom_llm_route(request: Request):
         # If streaming, handle response generation via streaming
         if streaming:
             chat_completion_stream = client.chat.completions.create(**request_data)
+            print("chat_completion result", chat_completion_stream.choices[0].message.content)
+
             return StreamingResponse(
                 generate_streaming_response(chat_completion_stream),
                 media_type='text/event-stream'
