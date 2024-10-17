@@ -1,6 +1,8 @@
 [
   {
-    "next": "Tell the user that you need to ask a few quick questions to help us onboard you. What's your first name?"
+    "next": "Tell the user that you need to ask a few quick questions to help us onboard you. What's your first name?",
+   "check": "Return yes if the user provided their first name, otherwise no",
+    "error": "Please provide your first name to continue."
   },
   {
     "next": " Thank the user and ask What's your last name?",
@@ -11,5 +13,8 @@
     "next": "Thank the user and ask We need your mobile number to fulfill your $20 gift card, so please enter it here.",
     "check": "Return yes if the user provided their mobile number, otherwise no",
     "error": "Please provide your mobile number to receive the $20 gift card."
+  },
+  {
+    "next": "Thank the user and ask We need your mobile number to fulfill your $20 gift card, so please enter it here."
   }
 ]
