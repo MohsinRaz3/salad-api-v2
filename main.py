@@ -369,7 +369,7 @@ async def openai_advanced_custom_llm_route(request: Request):
         if completion.choices[0].message.content == 'yes':
             prompt_index = get_prompt_index(call_id)
             next_prompt = pathway_prompt['next']
-            print("variable data", pathway_prompt['variables'])
+           
         else:
             next_prompt = pathway_prompt['error']
     else:
@@ -404,6 +404,7 @@ async def openai_advanced_custom_llm_route(request: Request):
         else:
             # Handle non-streaming response
             chat_completion = client.chat.completions.create(**request_data)
+            print("chat_completion result", chat_completion.choices[0].message.content)
             return JSONResponse(content=chat_completion.model_dump_json())
 
     except Exception as e:
