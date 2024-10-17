@@ -6,18 +6,18 @@
     "error": "Please provide your first name to continue."
   },
   {
-    "next": " Thank the user and ask What's your last name?",
     "check": "Return yes if the user provided their last name, otherwise no",
     "error": "Please provide your last name to continue.",
+    "next": " Thank the user and ask What's your last name?",
     "variables": {"last_name": "Extract the last name from the message"}
   },
   {
-    "next": "Thank the user and ask We need your mobile number to fulfill your $20 gift card, so please enter it here.",
     "check": "Return yes if the user provided their mobile number, otherwise no",
     "error": "Please provide your mobile number to receive the $20 gift card.",
+    "next": "Thank the user and ask We need your mobile number to fulfill your $20 gift card, so please enter it here.",
     "variables": {"mobile_number": "Extract the mobile number from the message"}
   },
   {
-    "next": "Say thank to to the user and end the call"
+    "next": "Tell the user goodbye and that a representative will call them back as soon as possible."
   }
 ]

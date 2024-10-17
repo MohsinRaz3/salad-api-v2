@@ -369,7 +369,7 @@ async def openai_advanced_custom_llm_route(request: Request):
         if completion.choices[0].message.content == 'yes':
             prompt_index = get_prompt_index(call_id)
             next_prompt = pathway_prompt['next']
-            print("variable data", pathway_prompt['variable'])
+            print("variable data", pathway_prompt['variables'])
         else:
             next_prompt = pathway_prompt['error']
     else:
