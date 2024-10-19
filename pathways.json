@@ -1,24 +1,121 @@
 [
-    {
-      "next": "Tell the user that you're Lisa, an AI representative from Catapult and that your mission is to help find the right property for the user."
-    },
-    
-    {
-      "check": "Return yes if the user provided their last name, otherwise no",
-      "error": "Create a short and concise answer and tell the user to provide their last name as we cannot continue otherwise.",
-      "next": "Thank the user for providing their last name and ask them nicely and concise to provide their email address."
-    },
-    
-    {
-      "check": "Return yes if the user provided their email address, otherwise no",
-      "error": "Create a short and concise answer and tell the user to provide their email address as we cannot continue otherwise.",
-      "next": "Thank the user and tell them that we have all details and that a represenattive will be in contact with them shortly."
-    },
-    
-    {
-      "next": "Tell the user goodbye and that a representative will call them back as soon as possible.",
-      "variables" : {
-        "first_name" : "Extract the first name from the message."
-      }
-    }
-  ]
+  {
+    "next": "Tell the user that you need to ask a few quick questions to help us onboard you What's your first name?",
+    "variables": {"first_name": "Extract the first name from the message"},
+   "check": "Return yes if the user provided their first name, otherwise no",
+    "error": "Please provide your first name to continue."
+  },
+  {
+    "next": "Ask user: And your last name?",
+    "check": "Return yes if the user provided their last name, otherwise no",
+    "error": "Please provide your last name to continue."
+  },
+  {
+    "next": "Ask user: What name do you go by?",
+    "check": "Return yes if the user provided their preferred name, otherwise no",
+    "error": "Please provide the name you go by to continue."
+  },
+  {
+    "next": "Ask user: We also need your consent to communicate with you, collect some important health information, and connect you with valuable resources available to you through your company and health plan. Catapult Health is a Medical Provider, so your confidential health information will be protected by HIPAA, just like it is at your local doctor's office.",
+    "check": "Return yes if the user provided consent, otherwise no",
+    "error": "Please provide your consent to continue."
+  },
+  {
+    "next": "Ask user: Do you have a primary care provider that you have seen in the last 2 years?",
+    "check": "Return yes if the user answered about primary care, otherwise no",
+    "error": "Please let us know if you have a primary care provider to continue."
+  },
+  {
+    "next": "Ask user: How tall are you, in feet and inches? Number of feet and inches?",
+    "check": "Return yes if the user provided their height, otherwise no",
+    "error": "Please provide your height to continue."
+  },
+  {
+    "next": "Ask user: How much do you weigh in pounds?",
+    "check": "Return yes if the user provided their weight, otherwise no",
+    "error": "Please provide your weight to continue."
+  },
+  {
+    "next": "Ask user: Here's what you entered: Weight = {weight} pounds, Height = {height}. Are these correct?",
+    "check": "Return yes if the user confirmed weight and height, otherwise no",
+    "error": "Please confirm if the weight and height you provided are correct."
+  },
+  {
+    "next": "Ask user: We also need your birth date. Enter it like this: Jan 1 1980",
+    "check": "Return yes if the user provided their birth date, otherwise no",
+    "error": "Please provide your birth date to continue."
+  },
+  {
+    "next": "Ask user: That makes you {age} years old, right?",
+    "check": "Return yes if the user confirmed their age, otherwise no",
+    "error": "Please confirm if the age is correct to continue."
+  },
+  {
+    "next": "Ask user: What is your biological sex?",
+    "check": "Return yes if the user provided their biological sex, otherwise no",
+    "error": "Please provide your biological sex to continue."
+  },
+  {
+    "next": "Ask user: Your proactive approach to your health is commendable, especially noting that you have a primary care provider and prioritize regular checkups. Keep up the fantastic work!",
+    "check": "Return yes if the user acknowledged their primary care provider, otherwise no",
+    "error": "Please acknowledge your primary care provider to continue."
+  },
+  {
+    "next": "Ask user: Do you smoke tobacco or vape?",
+    "check": "Return yes if the user provided an answer about smoking, otherwise no",
+    "error": "Please let us know if you smoke or vape to continue."
+  },
+  {
+    "next": "Ask user: Do you consider yourself to be physically active (about 150 minutes of moderate physical activity per week)?",
+    "check": "Return yes if the user provided an answer about physical activity, otherwise no",
+    "error": "Please let us know if you consider yourself physically active to continue."
+  },
+  {
+    "next": "Ask user: Do you think you get enough sleep most nights?",
+    "check": "Return yes if the user provided an answer about sleep, otherwise no",
+    "error": "Please let us know if you get enough sleep to continue."
+  },
+  {
+    "next": "Ask user: Do you feel like you have to deal with a lot of stress on a regular basis?",
+    "check": "Return yes if the user provided an answer about stress, otherwise no",
+    "error": "Please let us know if you regularly deal with stress to continue."
+  },
+  {
+    "next": "Ask user: Do you often feel depressed or anxious?",
+    "check": "Return yes if the user provided an answer about depression or anxiety, otherwise no",
+    "error": "Please let us know if you often feel depressed or anxious to continue."
+  },
+  {
+    "next": "Ask user: Please mark the health conditions that a healthcare provider has diagnosed you with: diabetes, high blood pressure, arthritis, high cholesterol, none",
+    "check": "Return yes if the user selected health conditions, otherwise no",
+    "error": "Please select the health conditions diagnosed by a healthcare provider to continue."
+  },
+  {
+    "next": "Ask user: If a healthcare provider has diagnosed you with any of these conditions, please check all that apply: kidney disease, thyroid disease, heart failure, sleep apnea, none of the above",
+    "check": "Return yes if the user selected health conditions, otherwise no",
+    "error": "Please select the health conditions diagnosed by a healthcare provider to continue."
+  },
+  {
+    "next": "Ask user: Have you received a flu vaccination in the last 12 months?",
+    "check": "Return yes if the user provided an answer about flu vaccination, otherwise no",
+    "error": "Please let us know if you have received a flu vaccination to continue."
+  },
+  {
+    "next": "Ask user: Have you been vaccinated for tetanus, diptheria, or whooping cough (TDAP) in the last 10 years?",
+    "check": "Return yes if the user provided an answer about TDAP vaccination, otherwise no",
+    "error": "Please let us know if you have received a TDAP vaccination to continue."
+  },
+  {
+    "next": "Ask user: Which of the following have you had tested in the last 12 months? Check all that apply: blood pressure, none of the above",
+    "check": "Return yes if the user provided health test details, otherwise no",
+    "error": "Please let us know which health tests you have had in the last 12 months to continue."
+  },
+  {
+    "next": "Ask user: We need your mobile number to fulfill your $20 gift card, so please enter it here.",
+    "check": "Return yes if the user provided their mobile number, otherwise no",
+    "error": "Please provide your mobile number to receive the $20 gift card."
+  },
+  {
+    "next": "Tell the user goodbye and that a representative will call them back as soon as possible."
+  }
+]
