@@ -16,6 +16,8 @@ from openai import OpenAI
 from fastapi.responses import StreamingResponse, JSONResponse
 import logging
 
+from utils.vapi_llm import get_vapi_data
+
 
 
 load_dotenv()
@@ -282,19 +284,16 @@ async def create_text_to_elevenlabs_voice(text_data: TextData = Body(...))->dict
 
 
 
-# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 PROMPT_INDEX_FILE = 'prompt_indices.json'
 PATHWAYS_MESSAGES_FILE = 'pathways.json'
 
-# Ensure the JSON file exists
 if not os.path.exists(PROMPT_INDEX_FILE):
     with open(PROMPT_INDEX_FILE, 'w') as f:
         json.dump({}, f)
 
-# Load the prompt messages
 with open(PATHWAYS_MESSAGES_FILE, 'r') as f:
     prompt_messages = json.load(f)
 
@@ -329,6 +328,7 @@ async def openai_advanced_custom_llm_route(request: Request):
     next_prompt = ''
     call_id = request_data['call']['id']
     prompt_index = get_prompt_index(call_id, False)
+    get_vapi_data(call_id)
 
     last_assistant_message = ''
     if 'messages' in request_data and len(request_data['messages']) >= 2:
@@ -357,7 +357,6 @@ async def openai_advanced_custom_llm_route(request: Request):
                 {"role": "user", "content": last_message['content']}
             ]
 
-        # OpenAI chat completion request
         completion = client.chat.completions.create(
             model="gpt-4o-mini-2024-07-18",
             messages=prompt_completion_messages,
@@ -398,7 +397,7 @@ async def openai_advanced_custom_llm_route(request: Request):
         if streaming:
             chat_completion_stream = client.chat.completions.create(**request_data)
             print("chat_completion result", chat_completion_stream)
-
+            
             return StreamingResponse(
                 generate_streaming_response(chat_completion_stream),
                 media_type='text/event-stream'
