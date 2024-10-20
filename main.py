@@ -329,7 +329,6 @@ async def openai_advanced_custom_llm_route(request: Request):
     next_prompt = ''
     call_id = request_data['call']['id']
     prompt_index = get_prompt_index(call_id, False)
-    asyncio.create_task(get_vapi_data(call_id))
 
     last_assistant_message = ''
     if 'messages' in request_data and len(request_data['messages']) >= 2:
@@ -394,11 +393,11 @@ async def openai_advanced_custom_llm_route(request: Request):
     try:
         streaming = request_data.get('stream', False)
 
-        # If streaming, handle response generation via streaming
         if streaming:
             chat_completion_stream = client.chat.completions.create(**request_data)
             print("chat_completion result", chat_completion_stream)
-            
+            asyncio.create_task(get_vapi_data(call_id))
+
             return StreamingResponse(
                 generate_streaming_response(chat_completion_stream),
                 media_type='text/event-stream'
@@ -407,10 +406,10 @@ async def openai_advanced_custom_llm_route(request: Request):
             # Handle non-streaming response
             chat_completion = client.chat.completions.create(**request_data)
             print("chat_completion result", chat_completion.choices[0].message.content)
+            asyncio.create_task(get_vapi_data(call_id))
             return JSONResponse(content=chat_completion.model_dump_json())
 
     except Exception as e:
-        # Handle errors
         return JSONResponse(content={"error": str(e)}, status_code=500)
 
 
