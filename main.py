@@ -396,7 +396,7 @@ async def openai_advanced_custom_llm_route(request: Request):
         if streaming:
             chat_completion_stream = client.chat.completions.create(**request_data)
             print("chat_completion result", chat_completion_stream)
-            asyncio.create_task(get_vapi_data(call_id))
+            get_vapi_data(call_id)
 
             return StreamingResponse(
                 generate_streaming_response(chat_completion_stream),
@@ -406,7 +406,7 @@ async def openai_advanced_custom_llm_route(request: Request):
             # Handle non-streaming response
             chat_completion = client.chat.completions.create(**request_data)
             print("chat_completion result", chat_completion.choices[0].message.content)
-            asyncio.create_task(get_vapi_data(call_id))
+            get_vapi_data(call_id)
             return JSONResponse(content=chat_completion.model_dump_json())
 
     except Exception as e:
