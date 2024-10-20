@@ -1,3 +1,4 @@
+import asyncio
 import os
 import time
 import requests, json
@@ -328,7 +329,7 @@ async def openai_advanced_custom_llm_route(request: Request):
     next_prompt = ''
     call_id = request_data['call']['id']
     prompt_index = get_prompt_index(call_id, False)
-    get_vapi_data(call_id)
+    asyncio.create_task(get_vapi_data(call_id))
 
     last_assistant_message = ''
     if 'messages' in request_data and len(request_data['messages']) >= 2:
