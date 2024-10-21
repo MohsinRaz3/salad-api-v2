@@ -368,7 +368,6 @@ async def openai_advanced_custom_llm_route(bg_tasks:BackgroundTasks, request: Re
         if completion.choices[0].message.content == 'yes':
             prompt_index = get_prompt_index(call_id)
             next_prompt = pathway_prompt['next']
-            bg_tasks.add_task(get_vapi_data, call_id) #send call id to get vapi data
 
            
         else:
@@ -377,7 +376,6 @@ async def openai_advanced_custom_llm_route(bg_tasks:BackgroundTasks, request: Re
         # No conditions, proceed to the next state
         prompt_index = get_prompt_index(call_id)
         next_prompt = pathway_prompt['next']
-        bg_tasks.add_task(get_vapi_data, call_id) #send call id to get vapi data
 
 
     # Modify the request with new prompt
@@ -399,7 +397,7 @@ async def openai_advanced_custom_llm_route(bg_tasks:BackgroundTasks, request: Re
 
         if streaming:
             chat_completion_stream = client.chat.completions.create(**request_data)
-            print("chat_completion result", chat_completion_stream)
+            bg_tasks.add_task(get_vapi_data, call_id) #send call id to get vapi data
 
             return StreamingResponse(
                 generate_streaming_response(chat_completion_stream),
@@ -408,7 +406,8 @@ async def openai_advanced_custom_llm_route(bg_tasks:BackgroundTasks, request: Re
         else:
             # Handle non-streaming response
             chat_completion = client.chat.completions.create(**request_data)
-            print("chat_completion result", chat_completion.choices[0].message.content)
+            bg_tasks.add_task(get_vapi_data, call_id) #send call id to get vapi data
+
             return JSONResponse(content=chat_completion.model_dump_json())
 
     except Exception as e:
