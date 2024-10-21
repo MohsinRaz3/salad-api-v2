@@ -406,8 +406,6 @@ async def openai_advanced_custom_llm_route(bg_tasks:BackgroundTasks, request: Re
         else:
             # Handle non-streaming response
             chat_completion = client.chat.completions.create(**request_data)
-            bg_tasks.add_task(get_vapi_data, call_id) #send call id to get vapi data
-
             return JSONResponse(content=chat_completion.model_dump_json())
 
     except Exception as e:
