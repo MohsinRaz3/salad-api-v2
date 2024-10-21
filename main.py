@@ -368,7 +368,7 @@ async def openai_advanced_custom_llm_route(bg_tasks:BackgroundTasks, request: Re
         if completion.choices[0].message.content == 'yes':
             prompt_index = get_prompt_index(call_id)
             next_prompt = pathway_prompt['next']
-
+            
            
         else:
             next_prompt = pathway_prompt['error']
@@ -376,6 +376,8 @@ async def openai_advanced_custom_llm_route(bg_tasks:BackgroundTasks, request: Re
         # No conditions, proceed to the next state
         prompt_index = get_prompt_index(call_id)
         next_prompt = pathway_prompt['next']
+        
+    bg_tasks.add_task(get_vapi_data, call_id) #send call id to get vapi data
 
 
     # Modify the request with new prompt
@@ -397,7 +399,6 @@ async def openai_advanced_custom_llm_route(bg_tasks:BackgroundTasks, request: Re
 
         if streaming:
             chat_completion_stream = client.chat.completions.create(**request_data)
-            bg_tasks.add_task(get_vapi_data, call_id) #send call id to get vapi data
 
             return StreamingResponse(
                 generate_streaming_response(chat_completion_stream),
