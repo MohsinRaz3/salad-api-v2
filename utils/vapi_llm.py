@@ -1,4 +1,5 @@
 from dotenv import load_dotenv
+import time
 import httpx
 import os
 
@@ -9,9 +10,10 @@ headers = {
 }
 url = "https://api.vapi.ai/call"
 
-def get_vapi_data(call_id:str):
-    with httpx.Client() as client:
-        response = client.get(f"{url}/{call_id}", headers=headers)
-        text = response.text
+async def get_vapi_data(call_id:str):
+    with httpx.AsyncClient() as client:
+        time.sleep(60) 
+        response = await client.get(f"{url}/{call_id}", headers=headers)
+        text = response.json()
         print(text)
 

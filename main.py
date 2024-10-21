@@ -323,13 +323,14 @@ def generate_streaming_response(data):
         yield f"data: {json_data}\n\n"
 
 @app.post("/chat/completions")
-async def openai_advanced_custom_llm_route(request: Request):
+async def openai_advanced_custom_llm_route(bg_tasks:BackgroundTasks, request: Request):
     request_data = await request.json()
 
     next_prompt = ''
     call_id = request_data['call']['id']
     prompt_index = get_prompt_index(call_id, False)
-
+    bg_tasks.add_task(get_vapi_data, call_id)
+    
     last_assistant_message = ''
     if 'messages' in request_data and len(request_data['messages']) >= 2:
         last_assistant_message = request_data['messages'][-2]
