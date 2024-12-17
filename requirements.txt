@@ -15,4 +15,4 @@ googlesearch-python
 beautifulsoup4
 html5lib
 openai
-elevenlabs
+elevenlabs==1.10.0
