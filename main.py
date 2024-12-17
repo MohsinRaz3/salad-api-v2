@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 from models import AudioLink, PodcastData, PodcastTextData, TextData
 from utils.mpodcast import call_bucket
 from utils.mpodcast_v2 import call_bucket_text_v2, call_bucket_v2, call_elevenlabs
+from utils.rocketprose import rocket_prose
 from utils.salad_transcription import salad_transcription_api
 from utils.search import scrape_website
 import httpx
@@ -416,7 +417,7 @@ async def openai_advanced_custom_llm_route(request: Request):
 
 @app.post("/transcribe", tags=["Salad Trasncription API"])
 async def transcribe_voice(file: UploadFile = File(...)):
-    """Takes audio file and creates transcription, sends to AP"""
+    """Takes audio blob file and creates transcription, sends to AP"""
 
     try:
         # Upload file to B2 storage
@@ -463,6 +464,13 @@ async def transcribe_voice(file: UploadFile = File(...)):
         raise HTTPException(status_code=500, detail=f"An error occurred: {e}")
 
 
+@app.post("/rocketprose_transcribe", tags=["Salad Trasncription API"])
+async def transcribe_rocketprose_voice(file: UploadFile = File(...)):
+    """Takes audio blob file and creates transcription only"""
+    result = await rocket_prose(file=file)
+    return {"prose_transcription" : result}
+    
+    
 # if __name__ == "__main__":
 #     import uvicorn
 #     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
