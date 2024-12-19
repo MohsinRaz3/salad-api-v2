@@ -75,11 +75,11 @@ async def create_podcast_script(transcript_value):
 # Log errors in detail for debugging
 logging.basicConfig(level=logging.DEBUG)
 
-async def transcription_prose(transcribed_value: str, text: str):
+async def transcription_prose(transcribed_value: str):
     """Generates transcription for RocketProse"""
     try:
         # Log the input parameters
-        logging.info(f"Generating transcription for: {text}")
+        # logging.info(f"Generating transcription for: {text}")
         
         # Call the OpenAI API to generate the transcription
         completion = client.chat.completions.create(
@@ -87,7 +87,7 @@ async def transcription_prose(transcribed_value: str, text: str):
             messages=[
                 {
                     "role": "system",
-                    "content": f"You are an expert in transcript generation. Create a concise and brief transcript for {text} purpose using content provided by the user.",
+                    "content": f"You are an expert in transcript generation. Create a concise and brief transcript using content provided by the user.",
                 },
                 {"role": "user", "content": transcribed_value}
             ]

@@ -494,13 +494,15 @@ async def transcribe_voice(file: UploadFile = File(...)):
 
 
 @app.post("/rocketprose_transcribe", tags=["Salad Trasncription API"])
-async def transcribe_rocketprose_voice(file: UploadFile = File(...), transcriptStyle: str = Form(...)):
+async def transcribe_rocketprose_voice(file: UploadFile = File(...)):
     """Takes audio blob file and creates transcription only"""
 
     try:
         # Debug: Check received data
-        print("Received file:", file.filename)
-        print("Received transcriptStyle:", transcriptStyle)
+        print("Received file:", file)
+
+        print("Received filename:", file.filename)
+        # print("Received transcriptStyle:", transcriptStyle)
 
         # Debug: Check MIME type
         print("File MIME type:", file.content_type)
@@ -546,7 +548,7 @@ async def transcribe_rocketprose_voice(file: UploadFile = File(...), transcriptS
             get_transcription = await get_job(job_id)
             if get_transcription:                
                 output_data = {"transcript" : get_transcription['output']['text']}
-                trasncription_result = transcription_prose(transcribed_value=output_data,text=transcriptStyle)
+                trasncription_result = transcription_prose(transcribed_value=output_data)
                 print("trnascription_result", trasncription_result)
                 return trasncription_result     
             
