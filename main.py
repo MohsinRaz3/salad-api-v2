@@ -1,5 +1,6 @@
 import os
 import time
+from typing import Optional
 import requests, json
 import fal_client
 from fastapi import Body, FastAPI, File, Form, Query, UploadFile, HTTPException,BackgroundTasks, Request, Response
@@ -465,7 +466,7 @@ async def transcribe_voice(file: UploadFile = File(...)):
 
 
 @app.post("/rocketprose_transcribe", tags=["Salad Trasncription API"])
-async def transcribe_rocketprose_voice(file: UploadFile = File(...)):
+async def transcribe_rocketprose_voice(file: UploadFile = File(...), transcriptStyle: Optional[str] = Form(None)):
     """Takes audio blob file and creates transcription only"""
 
     try:
@@ -504,7 +505,7 @@ async def transcribe_rocketprose_voice(file: UploadFile = File(...)):
             get_transcription = await get_job(job_id)
             if get_transcription:                
                 output_data = {"transcript" : get_transcription['output']['text']}
-                trasncription_result = transcription_prose(transcribed_value=output_data,text=file.transcriptStyle)
+                trasncription_result = transcription_prose(transcribed_value=output_data,text=transcriptStyle)
                 return trasncription_result     
             
     except requests.exceptions.RequestException as e:
