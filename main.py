@@ -498,18 +498,18 @@ async def transcribe_rocketprose_voice(file: UploadFile = File(...)):
     """Takes audio blob file and creates transcription only"""
 
     try:
-        # Debug: Check received data
-        print("Received file:", file)
+        # # Debug: Check received data
+        # print("Received file:", file)
 
-        print("Received filename:", file.filename)
-        # print("Received transcriptStyle:", transcriptStyle)
+        # print("Received filename:", file.filename)
+        # # print("Received transcriptStyle:", transcriptStyle)
 
-        # Debug: Check MIME type
-        print("File MIME type:", file.content_type)
+        # # Debug: Check MIME type
+        # print("File MIME type:", file.content_type)
 
-        # Attempt to read file
-        content = await file.read()
-        print("File content size:", len(content))
+        # # Attempt to read file
+        # content = await file.read()
+        # print("File content size:", len(content))
 
 
 
@@ -548,9 +548,9 @@ async def transcribe_rocketprose_voice(file: UploadFile = File(...)):
             get_transcription = await get_job(job_id)
             if get_transcription:                
                 output_data = {"transcript" : get_transcription['output']['text']}
-                trasncription_result = transcription_prose(transcribed_value=output_data)
-                print("trnascription_result", trasncription_result)
-                return trasncription_result     
+                # trasncription_result = transcription_prose(transcribed_value=output_data)
+                # print("trnascription_result", trasncription_result)
+                return output_data     
             
     except requests.exceptions.RequestException as e:
         raise HTTPException(status_code=500, detail=f"Error during request: {e}")
