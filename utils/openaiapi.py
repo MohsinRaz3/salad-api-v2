@@ -1,6 +1,8 @@
 import json
 from openai import OpenAI, OpenAIError
 from dotenv import load_dotenv
+import logging
+from fastapi import HTTPException
 
 load_dotenv()
 client = OpenAI()
@@ -69,24 +71,39 @@ async def create_podcast_script(transcript_value):
 # Transcription for RocketProse
 
 
-async def transcription_prose(transcribed_value,text):
-    """generates transcription for rocketprose"""
+
+# Log errors in detail for debugging
+logging.basicConfig(level=logging.DEBUG)
+
+async def transcription_prose(transcribed_value: str, text: str):
+    """Generates transcription for RocketProse"""
     try:
+        # Log the input parameters
+        logging.info(f"Generating transcription for: {text}")
+        
+        # Call the OpenAI API to generate the transcription
         completion = client.chat.completions.create(
             model="gpt-4o-mini-2024-07-18",
             messages=[
                 {
                     "role": "system",
-                    "content": f"You are an expert in transcript generator create a consie and brief transcript for {text} purpose using content provided by user.",
+                    "content": f"You are an expert in transcript generation. Create a concise and brief transcript for {text} purpose using content provided by the user.",
                 },
                 {"role": "user", "content": transcribed_value}
             ]
         )
 
+        # Extract the transcription result from the API response
         res = completion.choices[0].message.content
+        
+        # Log the successful response
+        logging.info(f"Generated transcription: {res}")
+        
         return res
 
     except Exception as e:
-        #print(f"An unexpected error occurred: {e}")
-        return {"error": str(e)}
-    
+        # Log the error message
+        logging.error(f"Error in transcription_prose: {str(e)}")
+        
+        # Raise an HTTPException with the error message
+        raise HTTPException(status_code=500, detail=f"Failed to generate transcription: {e}")

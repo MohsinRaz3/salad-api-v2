@@ -128,20 +128,39 @@ async def get_job(job_id):
             break
 
 
+# Log errors in detail for debugging
+logging.basicConfig(level=logging.DEBUG)
+
 async def upload_b2_storage(file: UploadFile):
+    """Uploads a file to Backblaze B2 storage"""
     APPLICATION_KEY_ID = os.getenv('APPLICATION_KEY_ID')
     APPLICATION_KEY = os.getenv('APPLICATION_KEY')
+    
+    # Check if environment variables are missing
+    if not APPLICATION_KEY_ID or not APPLICATION_KEY:
+        logging.error("Missing application credentials: APPLICATION_KEY_ID or APPLICATION_KEY")
+        raise HTTPException(status_code=500, detail="Internal server error: Missing credentials")
+    
     try:
+        # Initialize B2 API with account info
         info = InMemoryAccountInfo()
         b2_api = B2Api(info)
         b2_api.authorize_account('production', APPLICATION_KEY_ID, APPLICATION_KEY)
 
+        # Get the B2 bucket from environment variable
         bucket_name = os.getenv('BUCKET_NAME')
+        if not bucket_name:
+            logging.error("Missing BUCKET_NAME environment variable")
+            raise HTTPException(status_code=500, detail="Internal server error: Missing bucket name")
+
         bucket = b2_api.get_bucket_by_name(bucket_name)
 
         # Read file content into memory
         content = await file.read()
         file_name = file.filename
+
+        # Log file upload attempt
+        logging.info(f"Uploading file: {file_name} to bucket: {bucket_name}")
 
         # Upload file content to B2 storage
         bucket.upload_bytes(
@@ -150,13 +169,22 @@ async def upload_b2_storage(file: UploadFile):
             content_type=file.content_type
         )
 
+        # Construct the URL for the uploaded file
         salad_url = os.getenv('SALAD_URL')
+        if not salad_url:
+            logging.error("Missing SALAD_URL environment variable")
+            raise HTTPException(status_code=500, detail="Internal server error: Missing salad URL")
+
         file_url = f"{salad_url}/{file.filename}"
+
+        # Log the successful upload and return the URL
+        logging.info(f"File successfully uploaded. URL: {file_url}")
         return file_url
+
     except Exception as e:
+        # Log the error and raise an HTTPException
+        logging.error(f"Error uploading file to B2: {str(e)}")
         raise HTTPException(status_code=500, detail=f"File upload failed: {e}")
-
-
 
 @app.get("/")
 async def home_notes():
@@ -470,7 +498,9 @@ async def transcribe_rocketprose_voice(file: UploadFile = File(...), transcriptS
     """Takes audio blob file and creates transcription only"""
 
     try:
-        print("transcriptStyle", transcriptStyle)
+        print("file blob value", file)
+        print("transcriptStyle value", transcriptStyle)
+
 
         # Upload file to B2 storage
         b2_file_url = await upload_b2_storage(file)
