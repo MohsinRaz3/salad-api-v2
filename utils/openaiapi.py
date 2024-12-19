@@ -83,7 +83,7 @@ async def transcription_prose(transcribed_value: str, text: str):
         
         # Call the OpenAI API to generate the transcription
         completion = client.chat.completions.create(
-            model="gpt-4o-mini-2024-07-18",
+            model="gpt-4o-mini",
             messages=[
                 {
                     "role": "system",
@@ -98,6 +98,7 @@ async def transcription_prose(transcribed_value: str, text: str):
         
         # Log the successful response
         logging.info(f"Generated transcription: {res}")
+        print("openai response trnascript", res)
         
         return res
 
