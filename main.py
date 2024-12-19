@@ -498,8 +498,17 @@ async def transcribe_rocketprose_voice(file: UploadFile = File(...), transcriptS
     """Takes audio blob file and creates transcription only"""
 
     try:
-        print("file blob value", file)
-        print("transcriptStyle value", transcriptStyle)
+        # Debug: Check received data
+        print("Received file:", file.filename)
+        print("Received transcriptStyle:", transcriptStyle)
+
+        # Debug: Check MIME type
+        print("File MIME type:", file.content_type)
+
+        # Attempt to read file
+        content = await file.read()
+        print("File content size:", len(content))
+
 
 
         # Upload file to B2 storage
