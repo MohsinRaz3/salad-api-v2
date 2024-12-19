@@ -65,3 +65,28 @@ async def create_podcast_script(transcript_value):
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
         return None
+
+# Transcription for RocketProse
+
+
+async def transcription_prose(transcribed_value,text):
+    """generates transcription for rocketprose"""
+    try:
+        completion = client.chat.completions.create(
+            model="gpt-4o-mini-2024-07-18",
+            messages=[
+                {
+                    "role": "system",
+                    "content": f"You are an expert in transcript generator create a consie and brief transcript for {text} purpose using content provided by user.",
+                },
+                {"role": "user", "content": transcribed_value}
+            ]
+        )
+
+        res = completion.choices[0].message.content
+        return res
+
+    except Exception as e:
+        #print(f"An unexpected error occurred: {e}")
+        return {"error": str(e)}
+    

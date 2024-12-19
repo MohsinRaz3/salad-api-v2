@@ -2,13 +2,14 @@ import os
 import time
 import requests, json
 import fal_client
-from fastapi import Body, FastAPI, File, Query, UploadFile, HTTPException,BackgroundTasks, Request, Response
+from fastapi import Body, FastAPI, File, Form, Query, UploadFile, HTTPException,BackgroundTasks, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from b2sdk.v2 import InMemoryAccountInfo, B2Api
 from dotenv import load_dotenv
 from models import AudioLink, PodcastData, PodcastTextData, TextData
 from utils.mpodcast import call_bucket
 from utils.mpodcast_v2 import call_bucket_text_v2, call_bucket_v2, call_elevenlabs
+from utils.openaiapi import transcription_prose
 from utils.salad_transcription import salad_transcription_api
 from utils.search import scrape_website
 import httpx
@@ -464,7 +465,7 @@ async def transcribe_voice(file: UploadFile = File(...)):
 
 
 @app.post("/rocketprose_transcribe", tags=["Salad Trasncription API"])
-async def transcribe_rocketprose_voice(file: UploadFile = File(...)):
+async def transcribe_rocketprose_voice(file: UploadFile = File(...),text: str = Form(...)):
     """Takes audio blob file and creates transcription only"""
 
     try:
@@ -503,7 +504,8 @@ async def transcribe_rocketprose_voice(file: UploadFile = File(...)):
             get_transcription = await get_job(job_id)
             if get_transcription:                
                 output_data = {"transcript" : get_transcription['output']['text']}
-                return output_data     
+                trasncription_result = transcription_prose(transcribed_value=output_data,text=text)
+                return trasncription_result     
             
     except requests.exceptions.RequestException as e:
         raise HTTPException(status_code=500, detail=f"Error during request: {e}")
