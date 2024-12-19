@@ -466,10 +466,12 @@ async def transcribe_voice(file: UploadFile = File(...)):
 
 
 @app.post("/rocketprose_transcribe", tags=["Salad Trasncription API"])
-async def transcribe_rocketprose_voice(file: UploadFile = File(...), transcriptStyle: Optional[str] = Form(None)):
+async def transcribe_rocketprose_voice(file: UploadFile = File(...), transcriptStyle: str = Form(...)):
     """Takes audio blob file and creates transcription only"""
 
     try:
+        print("transcriptStyle", transcriptStyle)
+
         # Upload file to B2 storage
         b2_file_url = await upload_b2_storage(file)
 
@@ -506,6 +508,7 @@ async def transcribe_rocketprose_voice(file: UploadFile = File(...), transcriptS
             if get_transcription:                
                 output_data = {"transcript" : get_transcription['output']['text']}
                 trasncription_result = transcription_prose(transcribed_value=output_data,text=transcriptStyle)
+                print("trnascription_result", trasncription_result)
                 return trasncription_result     
             
     except requests.exceptions.RequestException as e:
