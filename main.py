@@ -442,6 +442,28 @@ async def openai_advanced_custom_llm_route(request: Request):
     except Exception as e:
         # Handle errors
         return JSONResponse(content={"error": str(e)}, status_code=500)
+    
+    
+@app.post("/rocketprose_openaiapi", tags=["Salad Trasncription API"])
+async def transcription_prose(transcribed_value: str, text:str):
+    """Generates transcription for RocketProse"""
+    try:
+        completion = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {
+                    "role": "system",
+                    "content": f"You are an expert in transcript generation. Create a concise and brief transcript using '{text}'content provided by the user.",
+                },
+                {"role": "user", "content": transcribed_value}
+            ]
+        )
+        res = completion.choices[0].message.content
+        print("openai response trnascript", res)
+        return {"transcribed_text":res}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to generate transcription: {e}")
+
 
 
 @app.post("/transcribe", tags=["Salad Trasncription API"])
@@ -498,21 +520,6 @@ async def transcribe_rocketprose_voice(file: UploadFile = File(...)):
     """Takes audio blob file and creates transcription only"""
 
     try:
-        # # Debug: Check received data
-        # print("Received file:", file)
-
-        # print("Received filename:", file.filename)
-        # # print("Received transcriptStyle:", transcriptStyle)
-
-        # # Debug: Check MIME type
-        # print("File MIME type:", file.content_type)
-
-        # # Attempt to read file
-        # content = await file.read()
-        # print("File content size:", len(content))
-
-
-
         # Upload file to B2 storage
         b2_file_url = await upload_b2_storage(file)
 
@@ -548,8 +555,7 @@ async def transcribe_rocketprose_voice(file: UploadFile = File(...)):
             get_transcription = await get_job(job_id)
             if get_transcription:                
                 output_data = {"transcript" : get_transcription['output']['text']}
-                # trasncription_result = transcription_prose(transcribed_value=output_data)
-                # print("trnascription_result", trasncription_result)
+
                 return output_data     
             
     except requests.exceptions.RequestException as e:
@@ -557,6 +563,3 @@ async def transcribe_rocketprose_voice(file: UploadFile = File(...)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An error occurred: {e}")
 
-# if __name__ == "__main__":
-#     import uvicorn
-#     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
