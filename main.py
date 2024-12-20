@@ -445,9 +445,11 @@ async def openai_advanced_custom_llm_route(request: Request):
     
     
 @app.post("/rocketprose_openaiapi", tags=["Salad Trasncription API"])
-async def transcription_response(proseData: ProseRequest):
-    result  = await transcription_prose(transcribed_value=proseData.transcribed_value, text=proseData.text)
-    return result
+async def transcription_response(proseData: ProseRequest = Body(...)):
+     result = await transcription_prose(
+        transcribed_value=proseData.transcribed_value,
+        text=proseData.text)
+     return result
 
 @app.post("/transcribe", tags=["Salad Trasncription API"])
 async def transcribe_voice(file: UploadFile = File(...)):
