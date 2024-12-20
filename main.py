@@ -7,7 +7,7 @@ from fastapi import Body, FastAPI, File, Form, Query, UploadFile, HTTPException,
 from fastapi.middleware.cors import CORSMiddleware
 from b2sdk.v2 import InMemoryAccountInfo, B2Api
 from dotenv import load_dotenv
-from models import AudioLink, PodcastData, PodcastTextData, TextData
+from models import AudioLink, PodcastData, PodcastTextData, ProseRequest, TextData
 from utils.mpodcast import call_bucket
 from utils.mpodcast_v2 import call_bucket_text_v2, call_bucket_v2, call_elevenlabs
 from utils.openaiapi import transcription_prose
@@ -445,8 +445,8 @@ async def openai_advanced_custom_llm_route(request: Request):
     
     
 @app.post("/rocketprose_openaiapi", tags=["Salad Trasncription API"])
-async def transcription_response(transcribed_value: str, text:str):
-    result  = await transcription_prose(transcribed_value=transcribed_value, text=text)
+async def transcription_response(proseData: ProseRequest):
+    result  = await transcription_prose(transcribed_value=proseData.transcribed_value, text=proseData.text)
     return result
 
 @app.post("/transcribe", tags=["Salad Trasncription API"])
