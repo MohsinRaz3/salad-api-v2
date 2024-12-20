@@ -445,26 +445,9 @@ async def openai_advanced_custom_llm_route(request: Request):
     
     
 @app.post("/rocketprose_openaiapi", tags=["Salad Trasncription API"])
-async def transcription_prose(transcribed_value: str, text:str):
-    """Generates transcription for RocketProse"""
-    try:
-        completion = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[
-                {
-                    "role": "system",
-                    "content": f"You are an expert in transcript generation. Create a concise and brief transcript using '{text}'content provided by the user.",
-                },
-                {"role": "user", "content": transcribed_value}
-            ]
-        )
-        res = completion.choices[0].message.content
-        print("openai response trnascript", res)
-        return {"transcribed_text":res}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to generate transcription: {e}")
-
-
+async def transcription_response(transcribed_value: str, text:str):
+    result  = await transcription_prose(transcribed_value=transcribed_value, text=text)
+    return result
 
 @app.post("/transcribe", tags=["Salad Trasncription API"])
 async def transcribe_voice(file: UploadFile = File(...)):

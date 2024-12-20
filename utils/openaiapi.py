@@ -57,3 +57,22 @@ async def create_podcast_script(transcript_value):
         return None
 
 
+async def transcription_prose(transcribed_value: str, text:str):
+    """Generates transcription for RocketProse"""
+    try:
+        completion = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {
+                    "role": "system",
+                    "content": f"You are an expert in transcript generation. Create a concise and brief transcript using '{text}'content provided by the user.",
+                },
+                {"role": "user", "content": transcribed_value}
+            ]
+        )
+        res = completion.choices[0].message.content
+        print("openai response trnascript", res)
+        return {"transcribed_text": res}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to generate transcription: {e}")
+
