@@ -1,14 +1,16 @@
 import os
 import time
+from typing import Any, Optional
 import requests, json
 import fal_client
-from fastapi import Body, FastAPI, File, Query, UploadFile, HTTPException,BackgroundTasks, Request, Response
+from fastapi import Body, FastAPI, File, Form, Query, UploadFile, HTTPException,BackgroundTasks, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from b2sdk.v2 import InMemoryAccountInfo, B2Api
 from dotenv import load_dotenv
-from models import AudioLink, PodcastData, PodcastTextData, TextData
+from models import AudioLink, PodcastData, PodcastTextData, ProseRequest, TextData
 from utils.mpodcast import call_bucket
 from utils.mpodcast_v2 import call_bucket_text_v2, call_bucket_v2, call_elevenlabs
+from utils.openaiapi import transcription_prose
 from utils.salad_transcription import salad_transcription_api
 from utils.search import scrape_website
 import httpx
@@ -126,20 +128,39 @@ async def get_job(job_id):
             break
 
 
+# Log errors in detail for debugging
+logging.basicConfig(level=logging.DEBUG)
+
 async def upload_b2_storage(file: UploadFile):
+    """Uploads a file to Backblaze B2 storage"""
     APPLICATION_KEY_ID = os.getenv('APPLICATION_KEY_ID')
     APPLICATION_KEY = os.getenv('APPLICATION_KEY')
+    
+    # Check if environment variables are missing
+    if not APPLICATION_KEY_ID or not APPLICATION_KEY:
+        logging.error("Missing application credentials: APPLICATION_KEY_ID or APPLICATION_KEY")
+        raise HTTPException(status_code=500, detail="Internal server error: Missing credentials")
+    
     try:
+        # Initialize B2 API with account info
         info = InMemoryAccountInfo()
         b2_api = B2Api(info)
         b2_api.authorize_account('production', APPLICATION_KEY_ID, APPLICATION_KEY)
 
+        # Get the B2 bucket from environment variable
         bucket_name = os.getenv('BUCKET_NAME')
+        if not bucket_name:
+            logging.error("Missing BUCKET_NAME environment variable")
+            raise HTTPException(status_code=500, detail="Internal server error: Missing bucket name")
+
         bucket = b2_api.get_bucket_by_name(bucket_name)
 
         # Read file content into memory
         content = await file.read()
         file_name = file.filename
+
+        # Log file upload attempt
+        logging.info(f"Uploading file: {file_name} to bucket: {bucket_name}")
 
         # Upload file content to B2 storage
         bucket.upload_bytes(
@@ -148,13 +169,22 @@ async def upload_b2_storage(file: UploadFile):
             content_type=file.content_type
         )
 
+        # Construct the URL for the uploaded file
         salad_url = os.getenv('SALAD_URL')
+        if not salad_url:
+            logging.error("Missing SALAD_URL environment variable")
+            raise HTTPException(status_code=500, detail="Internal server error: Missing salad URL")
+
         file_url = f"{salad_url}/{file.filename}"
+
+        # Log the successful upload and return the URL
+        logging.info(f"File successfully uploaded. URL: {file_url}")
         return file_url
+
     except Exception as e:
+        # Log the error and raise an HTTPException
+        logging.error(f"Error uploading file to B2: {str(e)}")
         raise HTTPException(status_code=500, detail=f"File upload failed: {e}")
-
-
 
 @app.get("/")
 async def home_notes():
@@ -412,11 +442,22 @@ async def openai_advanced_custom_llm_route(request: Request):
     except Exception as e:
         # Handle errors
         return JSONResponse(content={"error": str(e)}, status_code=500)
-
+    
+    
+@app.post("/rocketprose_openaiapi", tags=["Salad Trasncription API"])
+async def transcription_response(proseData: ProseRequest = Body(..., embed=True)):
+    try:
+        print(f"transcribe value is '{proseData.transcribed_value}' and get text value '{proseData.text}'" )
+        result = await transcription_prose(transcribed_value=proseData.transcribed_value,text=proseData.text)
+        return result
+    except Exception as e:
+        print("Error:", str(e))
+        return {"error": str(e)}
+        
 
 @app.post("/transcribe", tags=["Salad Trasncription API"])
 async def transcribe_voice(file: UploadFile = File(...)):
-    """Takes audio file and creates transcription, sends to AP"""
+    """Takes audio blob file and creates transcription, sends to AP"""
 
     try:
         # Upload file to B2 storage
@@ -463,6 +504,51 @@ async def transcribe_voice(file: UploadFile = File(...)):
         raise HTTPException(status_code=500, detail=f"An error occurred: {e}")
 
 
-# if __name__ == "__main__":
-#     import uvicorn
-#     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+@app.post("/rocketprose_transcribe", tags=["Salad Trasncription API"])
+async def transcribe_rocketprose_voice(file: UploadFile = File(...)):
+    """Takes audio blob file and creates transcription only"""
+
+    try:
+        # Upload file to B2 storage
+        b2_file_url = await upload_b2_storage(file)
+
+        organization_name =  os.getenv('ORGANIZATION_NAME')
+        url = f"https://api.salad.com/api/public/organizations/{organization_name}/inference-endpoints/transcribe/jobs"
+        salad_key = os.getenv('SALAD_KEY')
+        language_code = "en"
+        list_of_audio_files = [b2_file_url]
+
+        list_of_job_ids = []
+        headers = {
+            "Salad-Api-Key": salad_key,
+            "Content-Type": "application/json",
+            "accept": "application/json",
+        }
+
+        for audio_file in list_of_audio_files:
+            data = {
+                "input": {
+                    "url": audio_file,
+                    "language_code": language_code,
+                    "word_level_timestamps": True,
+                    "diarization": True,
+                    "srt": True,
+                }
+            }
+            response = requests.post(url, headers=headers, json=data)
+            
+            #response.raise_for_status()
+            job_id = response.json()["id"]
+
+            list_of_job_ids.append(job_id)
+            get_transcription = await get_job(job_id)
+            if get_transcription:                
+                output_data = {"transcript" : get_transcription['output']['text']}
+
+                return output_data     
+            
+    except requests.exceptions.RequestException as e:
+        raise HTTPException(status_code=500, detail=f"Error during request: {e}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"An error occurred: {e}")
+

@@ -52,3 +52,6 @@ class ChatRequest(BaseModel):
     messages: list
     stream: bool = False
     
+class ProseRequest(BaseModel):
+    transcribed_value: str
+    text: str
