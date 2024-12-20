@@ -67,7 +67,7 @@ async def transcription_prose(transcribed_value: str, text:str):
                     "role": "system",
                     "content": f"You are an expert in transcript generation. Create a concise and brief transcript using '{text}'content provided by the user.",
                 },
-                {"role": "user", "content": transcribed_value}
+                {"role": "user", "content": f"{transcribed_value}"}
             ]
         )
         res = completion.choices[0].message.content

@@ -1,6 +1,6 @@
 import os
 import time
-from typing import Optional
+from typing import Any, Optional
 import requests, json
 import fal_client
 from fastapi import Body, FastAPI, File, Form, Query, UploadFile, HTTPException,BackgroundTasks, Request, Response
@@ -445,7 +445,7 @@ async def openai_advanced_custom_llm_route(request: Request):
     
     
 @app.post("/rocketprose_openaiapi", tags=["Salad Trasncription API"])
-async def transcription_response(proseData: ProseRequest = Body(...)):
+async def transcription_response(proseData: Any = Body(..., embed=True)):
     try:
         print(f"transcribe value is '{proseData.transcribed_value}' and get text value '{proseData.text}'" )
         result = await transcription_prose(transcribed_value=proseData.transcribed_value,text=proseData.text)
