@@ -445,11 +445,13 @@ async def openai_advanced_custom_llm_route(request: Request):
     
     
 @app.post("/rocketprose_openaiapi", tags=["Salad Trasncription API"])
-async def transcription_response(proseData: ProseRequest = Body(..., embed=True)):
+async def transcription_response(proseData: Any):
     try:
+        print(f"heeeeeeeeeeeeeerer {proseData}" )
+
         print(f"transcribe value is '{proseData.transcribed_value}' and get text value '{proseData.text}'" )
-        result = await transcription_prose(transcribed_value=proseData.transcribed_value,text=proseData.text)
-        return result
+        # result = await transcription_prose(transcribed_value=proseData.transcribed_value,text=proseData.text)
+        return {"res":"result"}
     except Exception as e:
         print("Error:", str(e))
         return {"error": str(e)}
