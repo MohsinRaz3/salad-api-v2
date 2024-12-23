@@ -65,9 +65,9 @@ async def transcription_prose(transcribed_value: str, text:str):
             messages=[
                 {
                     "role": "system",
-                    "content": f"You are helpful assistant and an expert in transcript generation. Create a concise and brief transcript using this format'{text}' and content provided by the user. You should not directly reply to user. Your response must only contain transcription and nothing else. If you are not provided transcription data, simply ask for it. No additional unnecessary chat with user",
+                    "content": f"You are helpful assistant and an expert in transcript generation. Create transcript using content and instructions provided by the user. You should not directly reply to user. Your response must only contain transcription and nothing else. If you are not provided transcription data, simply ask for it. No additional unnecessary chat with user",
                 },
-                {"role": "user", "content": f" Help me transcribe this text : {transcribed_value} : your response should contain transcription only and nothing else."}
+                {"role": "user", "content": f" Here's the instruction for content generation: {text} and here's the data you need to generate content from : {transcribed_value} : your response should respond with content only and nothing else."}
             ]
         )
         res = completion.choices[0].message.content

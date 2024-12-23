@@ -129,7 +129,7 @@ async def get_job(job_id):
 
 
 # Log errors in detail for debugging
-logging.basicConfig(level=logging.DEBUG)
+# logging.basicConfig(level=logging.DEBUG)
 
 async def upload_b2_storage(file: UploadFile):
     """Uploads a file to Backblaze B2 storage"""
@@ -138,7 +138,7 @@ async def upload_b2_storage(file: UploadFile):
     
     # Check if environment variables are missing
     if not APPLICATION_KEY_ID or not APPLICATION_KEY:
-        logging.error("Missing application credentials: APPLICATION_KEY_ID or APPLICATION_KEY")
+        # logging.error("Missing application credentials: APPLICATION_KEY_ID or APPLICATION_KEY")
         raise HTTPException(status_code=500, detail="Internal server error: Missing credentials")
     
     try:
@@ -150,7 +150,7 @@ async def upload_b2_storage(file: UploadFile):
         # Get the B2 bucket from environment variable
         bucket_name = os.getenv('BUCKET_NAME')
         if not bucket_name:
-            logging.error("Missing BUCKET_NAME environment variable")
+            # logging.error("Missing BUCKET_NAME environment variable")
             raise HTTPException(status_code=500, detail="Internal server error: Missing bucket name")
 
         bucket = b2_api.get_bucket_by_name(bucket_name)
@@ -160,7 +160,7 @@ async def upload_b2_storage(file: UploadFile):
         file_name = file.filename
 
         # Log file upload attempt
-        logging.info(f"Uploading file: {file_name} to bucket: {bucket_name}")
+        # logging.info(f"Uploading file: {file_name} to bucket: {bucket_name}")
 
         # Upload file content to B2 storage
         bucket.upload_bytes(
@@ -172,18 +172,18 @@ async def upload_b2_storage(file: UploadFile):
         # Construct the URL for the uploaded file
         salad_url = os.getenv('SALAD_URL')
         if not salad_url:
-            logging.error("Missing SALAD_URL environment variable")
+            # logging.error("Missing SALAD_URL environment variable")
             raise HTTPException(status_code=500, detail="Internal server error: Missing salad URL")
 
         file_url = f"{salad_url}/{file.filename}"
 
         # Log the successful upload and return the URL
-        logging.info(f"File successfully uploaded. URL: {file_url}")
+        # logging.info(f"File successfully uploaded. URL: {file_url}")
         return file_url
 
     except Exception as e:
         # Log the error and raise an HTTPException
-        logging.error(f"Error uploading file to B2: {str(e)}")
+        # logging.error(f"Error uploading file to B2: {str(e)}")
         raise HTTPException(status_code=500, detail=f"File upload failed: {e}")
 
 @app.get("/")
@@ -313,8 +313,8 @@ async def create_text_to_elevenlabs_voice(text_data: TextData = Body(...))->dict
 
 
 # Configure logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+# logging.basicConfig(level=logging.INFO)
+# logger = logging.getLogger(__name__)
 
 PROMPT_INDEX_FILE = 'prompt_indices.json'
 PATHWAYS_MESSAGES_FILE = 'pathways.json'
