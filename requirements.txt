@@ -16,3 +16,4 @@ beautifulsoup4
 html5lib
 openai
 elevenlabs==1.10.0
+slowapi

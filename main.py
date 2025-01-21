@@ -50,23 +50,23 @@ async def rate_limit_exceeded_handler(request: Request, exc: RateLimitExceeded):
         content={"detail": "Rate limit exceeded. Please try again later."}
     )
     
-# origins = [    
-#     "https://typebot.co/",
-#     "https://api.scrapeowl.com/v1/scrape",
-#     "https://api.scrapeowl.com/",
-#     "https://cloud.activepieces.com/api/v1/webhooks/",
-#     "https://cloud.activepieces.com/"
+origins = [    
+    "https://typebot.co/",
+    "https://api.scrapeowl.com/v1/scrape",
+    "https://api.scrapeowl.com/",
+    "https://cloud.activepieces.com/api/v1/webhooks/",
+    "https://cloud.activepieces.com/"
+    "https://www.rocketfusionsuite.io/",
+    "https://rocketprose.vercel.app/",
+    "https://rocketfomo.vercel.app/",
 
-#     "http://127.0.0.1:8000/",
-#     "http://127.0.0.1:3000/",
-#     "http://localhost",
-#     "http://localhost:3000/"
-#     "http://localhost:8000/",
-# ]
+    "http://127.0.0.1:8000/",
+    "http://127.0.0.1:3000/",
+]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[origins],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
