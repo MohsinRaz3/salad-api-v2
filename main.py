@@ -16,8 +16,12 @@ from utils.search import scrape_website
 import httpx
 from openai import OpenAI
 from fastapi.responses import StreamingResponse, JSONResponse
-import logging
 
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
+from starlette.responses import JSONResponse
+from starlette.middleware.base import BaseHTTPMiddleware
 
 
 load_dotenv()
@@ -28,34 +32,36 @@ app = FastAPI(
     version="v1",
 )
 
-# origins = [
+limiter = Limiter(key_func=get_remote_address)
+@app.middleware("http")
+async def rate_limit_middleware(request: Request, call_next):
+    try:
+        response = await call_next(request)
+        return response
+    except RateLimitExceeded as exc:
+        return JSONResponse(
+            status_code=429, content={"detail": str(exc.detail)}
+        )
     
-#     "https://typebot.co/mohsinraz",
-#     "https://salad-api-v2-zrui.onrender.com",
-#     "https://salad-api-v2-zrui.onrender.com/",
-#     "https://salad-api-v2-zrui.onrender.com/transcribe"
-#     "https://rocket-tools.netlify.app/",
-#     "https://rocket-tools.netlify.app",
+@app.exception_handler(RateLimitExceeded)
+async def rate_limit_exceeded_handler(request: Request, exc: RateLimitExceeded):
+    return JSONResponse(
+        status_code=429,
+        content={"detail": "Rate limit exceeded. Please try again later."}
+    )
+    
+# origins = [    
+#     "https://typebot.co/",
 #     "https://api.scrapeowl.com/v1/scrape",
 #     "https://api.scrapeowl.com/",
-#     "https://cloud.activepieces.com/api/v1/webhooks/VKcq0ji9g6BItj59d9h1l",
+#     "https://cloud.activepieces.com/api/v1/webhooks/",
 #     "https://cloud.activepieces.com/"
-#     "https://salad-api.vercel.app/",
-#     "https://salad-api.vercel.app/transcribe",
-#     "https://salad-api.vercel.app",
-#     "http://localhost:3000/",
-#     "http://localhost:3000",
-#     "http://127.0.0.1:3000",
+
 #     "http://127.0.0.1:8000/",
-#     "http://localhost:3001/",
-#     "http://localhost",
-#     "http://localhost:8000/",
-#     "http://localhost:8000",
-#     "http://127.0.0.1:8000",
 #     "http://127.0.0.1:3000/",
 #     "http://localhost",
-#     "http://localhost:8000",
-#     "http://localhost:3000",
+#     "http://localhost:3000/"
+#     "http://localhost:8000/",
 # ]
 
 app.add_middleware(
@@ -128,70 +134,52 @@ async def get_job(job_id):
             break
 
 
-# Log errors in detail for debugging
-# logging.basicConfig(level=logging.DEBUG)
-
 async def upload_b2_storage(file: UploadFile):
     """Uploads a file to Backblaze B2 storage"""
     APPLICATION_KEY_ID = os.getenv('APPLICATION_KEY_ID')
     APPLICATION_KEY = os.getenv('APPLICATION_KEY')
     
-    # Check if environment variables are missing
+
     if not APPLICATION_KEY_ID or not APPLICATION_KEY:
-        # logging.error("Missing application credentials: APPLICATION_KEY_ID or APPLICATION_KEY")
         raise HTTPException(status_code=500, detail="Internal server error: Missing credentials")
     
     try:
-        # Initialize B2 API with account info
         info = InMemoryAccountInfo()
         b2_api = B2Api(info)
         b2_api.authorize_account('production', APPLICATION_KEY_ID, APPLICATION_KEY)
 
-        # Get the B2 bucket from environment variable
         bucket_name = os.getenv('BUCKET_NAME')
         if not bucket_name:
-            # logging.error("Missing BUCKET_NAME environment variable")
             raise HTTPException(status_code=500, detail="Internal server error: Missing bucket name")
 
         bucket = b2_api.get_bucket_by_name(bucket_name)
-
-        # Read file content into memory
         content = await file.read()
         file_name = file.filename
 
-        # Log file upload attempt
-        # logging.info(f"Uploading file: {file_name} to bucket: {bucket_name}")
-
-        # Upload file content to B2 storage
         bucket.upload_bytes(
             content,
             file_name,
             content_type=file.content_type
         )
 
-        # Construct the URL for the uploaded file
         salad_url = os.getenv('SALAD_URL')
         if not salad_url:
-            # logging.error("Missing SALAD_URL environment variable")
             raise HTTPException(status_code=500, detail="Internal server error: Missing salad URL")
 
         file_url = f"{salad_url}/{file.filename}"
-
-        # Log the successful upload and return the URL
-        # logging.info(f"File successfully uploaded. URL: {file_url}")
         return file_url
 
     except Exception as e:
-        # Log the error and raise an HTTPException
-        # logging.error(f"Error uploading file to B2: {str(e)}")
         raise HTTPException(status_code=500, detail=f"File upload failed: {e}")
 
 @app.get("/")
-async def home_notes():
+@limiter.limit("5/minute") 
+async def home_notes(request: Request):
     return {"message": "RocketTools Home!"}
 
 @app.post("/scrapeowl", tags=["Scrapping"])
-async def serpapi_keyword( background_tasks:BackgroundTasks, query: str = Body(..., embed=True)):
+@limiter.limit("5/minute")
+async def serpapi_keyword(request: Request, background_tasks:BackgroundTasks, query: str = Body(..., embed=True)):
     """Turns query into keywords, searches and create blogs, sends to AP"""
     try:  
         print("User query:", query)
@@ -205,7 +193,8 @@ async def serpapi_keyword( background_tasks:BackgroundTasks, query: str = Body(.
         raise HTTPException(status_code=500, detail="An unexpected error occurred")
 
 @app.post("/prompt/{user_prompt}", tags=["Fluxai"])
-async def image_prompt(user_prompt:str):
+@limiter.limit("5/minute")
+async def image_prompt(request:Request, user_prompt:str):
     """Turn text into Fluxai Image, sends to APs"""
     try:
         img_url = await submit(user_prompt) 
@@ -217,7 +206,8 @@ async def image_prompt(user_prompt:str):
         raise HTTPException(status_code=500, detail="An unexpected error occurred")
 
 @app.post("/flux_prompt/{user_prompt}", tags=["Fluxai"])
-async def flux_typebot(user_prompt:str):
+@limiter.limit("5/minute") 
+async def flux_typebot(request: Request,user_prompt:str):
     """Turn text into Fluxai Image only"""
 
     try:
@@ -230,12 +220,11 @@ async def flux_typebot(user_prompt:str):
 
 
 @app.post("/salad_transcription/", tags=["Salad Trasncription API"])
-async def salad_transcript(audio_link: AudioLink = Body(...)):
+@limiter.limit("5/minute") 
+async def salad_transcript(request: Request,audio_link: AudioLink = Body(...)):
     """Turns audio file into text only"""
-    #print(" Audio link", audio_link.audio_link)
     try:
         transcript = await salad_transcription_api(audio_link=audio_link.audio_link)
-        #print("Transcript", transcript)
         return transcript
     except httpx.RequestError as e:
         raise HTTPException(status_code=500, detail=f"Error during request: {e}")
@@ -243,7 +232,8 @@ async def salad_transcript(audio_link: AudioLink = Body(...)):
         raise HTTPException(status_code=500, detail=f"An error occurred: {e}")
     
 @app.post("/micro_podcast/", tags=["Podcast"])
-async def create_micro_podcast(background_tasks:BackgroundTasks, audio_link: AudioLink = Body(...)):
+@limiter.limit("5/minute") 
+async def create_micro_podcast(request: Request,background_tasks:BackgroundTasks, audio_link: AudioLink = Body(...)):
     """Takes audio file and creates audio podcast with shownotes, sends to AP"""
 
     try:
@@ -257,7 +247,8 @@ async def create_micro_podcast(background_tasks:BackgroundTasks, audio_link: Aud
 
   
 @app.post("/micro_podcast_v2/", tags=["Podcast"])
-async def create_micro_podcast_v2(podcast_data: PodcastData = Body(...))->dict:
+@limiter.limit("5/minute") 
+async def create_micro_podcast_v2(request: Request,podcast_data: PodcastData = Body(...))->dict:
     """Takes audio file and creates audio podcast with shownotes"""
     try: 
         result = await call_bucket_v2(
@@ -277,7 +268,8 @@ async def create_micro_podcast_v2(podcast_data: PodcastData = Body(...))->dict:
 
 
 @app.post("/micro_podcast_text_v2/", tags=["Podcast"])
-async def create_micro_podcast_text_v2(podcast_data: PodcastTextData = Body(...))->dict:
+@limiter.limit("5/minute") 
+async def create_micro_podcast_text_v2(request: Request,podcast_data: PodcastTextData = Body(...))->dict:
     """Takes Text and creates audio podcast with shownotes. sends AP"""
 
     try:
@@ -297,7 +289,8 @@ async def create_micro_podcast_text_v2(podcast_data: PodcastTextData = Body(...)
         raise HTTPException(status_code=500, detail=f"An error occurred: {e}")
 
 @app.post("/text_to_elevenlabs_voice/", tags=["Elevenlabs"])
-async def create_text_to_elevenlabs_voice(text_data: TextData = Body(...))->dict:
+@limiter.limit("5/minute") 
+async def create_text_to_elevenlabs_voice(request: Request,text_data: TextData = Body(...))->dict:
     """Takes Text and creates audio """
     try:
         result = await call_elevenlabs(
@@ -310,11 +303,6 @@ async def create_text_to_elevenlabs_voice(text_data: TextData = Body(...))->dict
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An error occurred: {e}")
 
-
-
-# Configure logging
-# logging.basicConfig(level=logging.INFO)
-# logger = logging.getLogger(__name__)
 
 PROMPT_INDEX_FILE = 'prompt_indices.json'
 PATHWAYS_MESSAGES_FILE = 'pathways.json'
@@ -445,7 +433,8 @@ async def openai_advanced_custom_llm_route(request: Request):
     
     
 @app.post("/rocketprose_openaiapi", tags=["Salad Trasncription API"])
-async def transcription_response(proseData: ProseRequest = Body(..., embed=True)):
+@limiter.limit("5/minute") 
+async def transcription_response(request: Request, proseData: ProseRequest = Body(..., embed=True)):
     try:
         print(f"transcribe value is '{proseData.transcribed_value}' and get text value '{proseData.text}'" )
         result = await transcription_prose(transcribed_value=proseData.transcribed_value,text=proseData.text)
@@ -455,8 +444,10 @@ async def transcription_response(proseData: ProseRequest = Body(..., embed=True)
         return {"error": str(e)}
         
 
+
 @app.post("/transcribe", tags=["Salad Trasncription API"])
-async def transcribe_voice(file: UploadFile = File(...)):
+@limiter.limit("5/minute") 
+async def transcribe_voice(request: Request,file: UploadFile = File(...)):
     """Takes audio blob file and creates transcription, sends to AP"""
 
     try:
@@ -505,7 +496,8 @@ async def transcribe_voice(file: UploadFile = File(...)):
 
 
 @app.post("/rocketprose_transcribe", tags=["Salad Trasncription API"])
-async def transcribe_rocketprose_voice(file: UploadFile = File(...)):
+@limiter.limit("5/minute") 
+async def transcribe_rocketprose_voice(request: Request, file: UploadFile = File(...)):
     """Takes audio blob file and creates transcription only"""
 
     try:
