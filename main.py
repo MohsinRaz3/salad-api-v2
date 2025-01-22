@@ -57,9 +57,9 @@ origins = [
     "https://cloud.activepieces.com/api/v1/webhooks/",
     "https://cloud.activepieces.com/"
     "https://www.rocketfusionsuite.io/",
-    "https://rocketprose.vercel.app/",
+    "https://rocketprose.vercel.app",
     "https://rocketprose.vercel.app/transcription",
-    "https://rocketfomo.vercel.app/",
+    "https://rocketfomo.vercel.app",
     "https://rocketfomo.vercel.app/generate",
 
     "http://127.0.0.1:8000/",
