@@ -67,7 +67,9 @@ origins = [
     "https://rocketfomo.vercel.app/generate",
 
     "http://127.0.0.1:8000/",
-    "http://127.0.0.1:3000/",
+    "http://127.0.0.1:3000/"
+    "http://localhost:5173/"
+    "http://localhost:5173/transcription",
 ]
 
 app.add_middleware(
@@ -448,8 +450,6 @@ async def transcription_response(request: Request, proseData: ProseRequest = Bod
     except Exception as e:
         print("Error:", str(e))
         return {"error": str(e)}
-        
-
 
 @app.post("/transcribe", tags=["Salad Trasncription API"])
 @limiter.limit("5/minute") 
