@@ -32,9 +32,13 @@ app = FastAPI(
     version="v1",
 )
 
+# Initialize the rate limiter
 limiter = Limiter(key_func=get_remote_address)
+
 @app.middleware("http")
 async def rate_limit_middleware(request: Request, call_next):
+    if request.method == "OPTIONS":  # Allow OPTIONS requests to bypass rate limiting
+        return await call_next(request)
     try:
         response = await call_next(request)
         return response
@@ -42,14 +46,14 @@ async def rate_limit_middleware(request: Request, call_next):
         return JSONResponse(
             status_code=429, content={"detail": str(exc.detail)}
         )
-    
+
 @app.exception_handler(RateLimitExceeded)
 async def rate_limit_exceeded_handler(request: Request, exc: RateLimitExceeded):
     return JSONResponse(
         status_code=429,
         content={"detail": "Rate limit exceeded. Please try again later."}
     )
-    
+
 origins = [    
     "https://typebot.co/",
     "https://api.scrapeowl.com/v1/scrape",
